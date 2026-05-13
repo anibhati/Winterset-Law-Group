@@ -94,7 +94,7 @@ export default function HomePage() {
               href="/get-started"
               className="bg-navy-900 hover:bg-navy-800 text-white font-bold text-base px-10 py-4 rounded-xl transition-colors inline-block"
             >
-              Start Now, Free and No Commitment
+              Start Now
             </Link>
           </div>
         </div>
