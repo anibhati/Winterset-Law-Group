@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String?
+  name      String
+  password  String
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+
+  debtAccount   DebtAccount?
+  planRequests  PaymentPlanRequest[]
+  disputes      DisputeRequest[]
+  consultations ConsultationBooking[]
+  auditLogs     AuditLog[]
+}
+
+enum Role {
+  CLIENT
+  STAFF
+  ATTORNEY
+}
+
+// ─── Debt Accounts ────────────────────────────────────────────────────────────
+
+model DebtAccount {
+  id             String        @id @default(cuid())
+  accountNumber  String        @unique
+  userId         String?       @unique
+  user           User?         @relation(fields: [userId], references: [id])
+  debtorName     String
+  debtType       DebtType
+  originalAmount Float
+  currentBalance Float
+  agency         String
+  status         AccountStatus @default(ACTIVE)
+  createdAt      DateTime      @default(now())
+
+  planRequests PaymentPlanRequest[]
+}
+
+enum DebtType {
+  INCOME_TAX
+  BUSINESS_TAX
+  SALES_TAX
+  WITHHOLDING_TAX
+  BWC
+  UNEMPLOYMENT
+  MEDICAID
+  OTHER
+}
+
+enum AccountStatus {
+  ACTIVE
+  IN_PLAN
+  RESOLVED
+  DISPUTED
+}
+
+// ─── Payment Plan Requests ────────────────────────────────────────────────────
+
+model PaymentPlanRequest {
+  id                String        @id @default(cuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id])
+  debtAccountId     String
+  debtAccount       DebtAccount   @relation(fields: [debtAccountId], references: [id])
+  frequency         Frequency
+  installmentAmount Float
+  startDate         DateTime
+  status            RequestStatus @default(PENDING)
+  staffNotes        String?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  createdAt         DateTime      @default(now())
+}
+
+enum Frequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+// ─── Disputes ─────────────────────────────────────────────────────────────────
+
+model DisputeRequest {
+  id            String        @id @default(cuid())
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  accountNumber String
+  name          String
+  email         String
+  phone         String
+  reason        DisputeReason
+  description   String
+  status        RequestStatus @default(PENDING)
+  staffNotes    String?
+  createdAt     DateTime      @default(now())
+}
+
+enum DisputeReason {
+  WRONG_AMOUNT
+  ALREADY_PAID
+  NOT_MY_DEBT
+  IDENTITY_THEFT
+  OTHER
+}
+
+// ─── Consultation Bookings ────────────────────────────────────────────────────
+
+model ConsultationBooking {
+  id            String            @id @default(cuid())
+  userId        String?
+  user          User?             @relation(fields: [userId], references: [id])
+  name          String
+  phone         String
+  email         String
+  topic         ConsultationTopic
+  accountNumber String?
+  preferredDate DateTime
+  timeSlot      String
+  notes         String?
+  status        BookingStatus     @default(PENDING)
+  confirmedBy   String?
+  createdAt     DateTime          @default(now())
+}
+
+enum ConsultationTopic {
+  PAYMENT_PLAN
+  DISPUTE
+  GENERAL_INQUIRY
+  OTHER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  metadata  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+}
