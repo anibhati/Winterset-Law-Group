@@ -24,7 +24,7 @@ export default function AboutPage() {
               <h2 className="text-2xl font-serif font-bold text-navy-900 mb-4">Our Mission</h2>
               <div className="gold-divider mb-6"></div>
               <p className="text-gray-700 leading-relaxed mb-4">
-                “People First” – WLG is dedicated to assisting individuals in resolving their obligations to the State of Ohio with fair, manageable solutions. We aim to simplify the process by providing clear guidance, flexible payment options, and compassionate support.  WLG delivers top-tier professionalism and service setting the gold standard among law firms.
+                At Winterset Law Group, we believe that navigating a debt obligation to the State of Ohio doesn&apos;t have to be an overwhelming or frightening experience. Our &ldquo;People First&rdquo; philosophy guides everything we do, from the way we explain your account to the flexible payment solutions we help you build.
               </p>
               <p className="text-gray-700 leading-relaxed">
                 We are dedicated to treating every individual with dignity and respect, providing clear and honest
