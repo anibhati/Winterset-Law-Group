@@ -69,39 +69,45 @@ export default function AboutPage() {
             </section>
           </div>
 
-          {/* Sidebar: Partner Bio */}
-          <aside>
-            <div className="card sticky top-24">
-              <div className="w-24 h-24 rounded-full bg-navy-100 mx-auto mb-4 flex items-center justify-center">
-                {/* Replace with actual photo: <Image src="/images/stevens.jpg" alt="Christopher J. Stevens" ... /> */}
-                <span className="text-4xl">⚖️</span>
+          {/* Sidebar: Team */}
+          <aside className="space-y-6">
+            {[
+              { name: "Christopher J. Stevens", title: "Managing Partner", phone: "614.453.1203", email: "christopher.stevens@wintersetlawgroup.com" },
+              { name: "Phil Higginbotham", title: null, phone: "614.453.1212", email: "phil.higginbotham@wintersetlawgroup.com" },
+              { name: "Jake Luttmer", title: null, phone: "614.453.1205", email: "jake.luttmer@wintersetlawgroup.com" },
+              { name: "Tyler Groomes", title: null, phone: "614-453-1200", email: "tyler.groomes@wintersetlawgroup.com" },
+              { name: "Asmaa Aoudjit", title: null, phone: "614-453-1200", email: "asmaa.aoudjit@wintersetlawgroup.com" },
+              { name: "Jack Stanovic", title: null, phone: "614-453-1200", email: "jack.stanovic@wintersetlawgroup.com" },
+              { name: "Kaitlyn Mincey", title: null, phone: "614-453-1200", email: "kaitlyn.mincey@wintersetlawgroup.com" },
+              { name: "Rafik Zanoun", title: null, phone: "614-453-1200", email: "rafik.zanoun@wintersetlawgroup.com" },
+            ].map((member) => (
+              <div key={member.name} className="card">
+                <div className="w-14 h-14 rounded-full bg-navy-100 mx-auto mb-3 flex items-center justify-center">
+                  <span className="text-2xl font-serif font-bold text-navy-900">
+                    {member.name.charAt(0)}
+                  </span>
+                </div>
+                <h3 className="font-serif font-bold text-navy-900 text-base text-center mb-1">
+                  {member.name}
+                </h3>
+                {member.title && (
+                  <p className="text-gold-500 text-xs text-center mb-3">{member.title}</p>
+                )}
+                <div className="h-px bg-gray-100 mb-3 mt-3"></div>
+                <div className="space-y-2 text-xs text-gray-600">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Phone:</span>
+                    <span>{member.phone}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="font-medium text-gray-700 shrink-0">Email:</span>
+                    <a href={`mailto:${member.email}`} className="text-gold-500 hover:underline truncate">
+                      {member.email}
+                    </a>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-serif font-bold text-navy-900 text-xl text-center mb-1">
-                {FIRM.partner.name}
-              </h3>
-              <p className="text-gold-500 text-sm text-center mb-4">{FIRM.partner.title}</p>
-              <div className="h-px bg-gray-100 mb-4"></div>
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Licensed:</span>
-                  <span>Ohio Bar</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Role:</span>
-                  <span>Special Counsel, Ohio AG</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Since:</span>
-                  <span>{FIRM.servingSince}</span>
-                </div>
-              </div>
-              <div className="h-px bg-gray-100 my-4"></div>
-              <p className="text-gray-600 text-xs leading-relaxed">
-                {FIRM.partner.name} has led Winterset Law Group&apos;s representation of the State of Ohio since
-                the firm&apos;s founding. He is committed to the firm&apos;s &ldquo;People First&rdquo; mission and brings
-                decades of experience in Ohio debt resolution.
-              </p>
-            </div>
+            ))}
           </aside>
         </div>
       </div>
