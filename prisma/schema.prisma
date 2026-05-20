@@ -39,6 +39,7 @@ model DebtAccount {
   userId         String?       @unique
   user           User?         @relation(fields: [userId], references: [id])
   debtorName     String
+  last4Ssn       String
   debtType       DebtType
   originalAmount Float
   currentBalance Float
@@ -71,8 +72,8 @@ enum AccountStatus {
 
 model PaymentPlanRequest {
   id                String        @id @default(cuid())
-  userId            String
-  user              User          @relation(fields: [userId], references: [id])
+  userId            String?
+  user              User?         @relation(fields: [userId], references: [id])
   debtAccountId     String
   debtAccount       DebtAccount   @relation(fields: [debtAccountId], references: [id])
   frequency         Frequency

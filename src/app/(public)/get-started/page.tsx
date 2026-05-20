@@ -38,19 +38,6 @@ interface DisputeForm {
   phone: string;
 }
 
-// ─── Demo data (replace with real API call) ───────────────────────────────────
-function mockLookup(info: AccountInfo): DebtSummary | null {
-  // Simulates a successful account lookup for any account number with a last name
-  if (!info.accountNumber || !info.lastName) return null;
-  return {
-    accountNumber: info.accountNumber.toUpperCase(),
-    debtorName: info.lastName.charAt(0).toUpperCase() + info.lastName.slice(1).toLowerCase() + " (Demo)",
-    debtType: "INCOME_TAX",
-    currentBalance: 4_820.0,
-    agency: "Ohio Department of Taxation",
-  };
-}
-
 // ─── Progress Bar ─────────────────────────────────────────────────────────────
 function Progress({ step, total }: { step: number; total: number }) {
   return (
@@ -81,7 +68,6 @@ function WizardShell({
 }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Top bar */}
       <div className="bg-navy-900 px-4 py-4 flex items-center gap-3">
         {onBack && (
           <button onClick={onBack} className="text-white/60 hover:text-white transition-colors mr-1" aria-label="Go back">
@@ -99,7 +85,6 @@ function WizardShell({
       </div>
       <Progress step={step} total={totalSteps} />
 
-      {/* Card */}
       <div className="flex-1 flex items-start justify-center px-4 py-8">
         <div className="w-full max-w-lg">
           <h1 className="text-2xl font-serif font-bold text-navy-900 mb-1">{title}</h1>
@@ -108,7 +93,6 @@ function WizardShell({
         </div>
       </div>
 
-      {/* Always-visible escape hatch */}
       <div className="text-center py-4 border-t border-gray-200 bg-white">
         <p className="text-gray-400 text-xs">
           Need help?{" "}
@@ -190,25 +174,52 @@ export default function GetStartedPage() {
 
   // ── Step 1: Account Lookup ──────────────────────────────────────────────────
   if (step === 1) {
-    function handleLookup(e: React.FormEvent) {
+    async function handleLookup(e: React.FormEvent) {
       e.preventDefault();
       setLookupError("");
-      if (!accountInfo.accountNumber.trim() || !accountInfo.lastName.trim()) {
-        setLookupError("Please enter your account number and last name.");
+
+      if (!accountInfo.accountNumber.trim() || !accountInfo.lastName.trim() || !accountInfo.last4ssn.trim()) {
+        setLookupError("Please enter your account number, last name, and last 4 of SSN.");
         return;
       }
+      if (!/^\d{4}$/.test(accountInfo.last4ssn.trim())) {
+        setLookupError("Last 4 of SSN must be exactly 4 digits.");
+        return;
+      }
+
       setLookupLoading(true);
-      // Simulate async lookup
-      setTimeout(() => {
-        const result = mockLookup(accountInfo);
+
+      try {
+        const res = await fetch("/api/lookup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            accountNumber: accountInfo.accountNumber,
+            lastName: accountInfo.lastName,
+            last4Ssn: accountInfo.last4ssn,
+          }),
+        });
+
+        const data = await res.json();
         setLookupLoading(false);
-        if (!result) {
-          setLookupError("We couldn't find an account with those details. Please check your account number or call us.");
+
+        if (!res.ok) {
+          setLookupError(data.error || "We couldn't find an account with those details. Please check your information or call us.");
           return;
         }
-        setDebt(result);
+
+        setDebt({
+          accountNumber: data.accountNumber,
+          debtorName: data.debtorName,
+          debtType: data.debtType,
+          currentBalance: data.currentBalance,
+          agency: data.agency,
+        });
         setStep(2);
-      }, 800);
+      } catch (err) {
+        setLookupLoading(false);
+        setLookupError("Could not reach the server. Please try again or call us.");
+      }
     }
 
     return (
@@ -218,7 +229,7 @@ export default function GetStartedPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
             <input
               type="text"
-              placeholder="e.g. OH-2024-00012345"
+              placeholder="e.g. WLG-2026-001"
               value={accountInfo.accountNumber}
               onChange={(e) => setAccountInfo({ ...accountInfo, accountNumber: e.target.value })}
               className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-navy-900 focus:border-transparent"
@@ -239,7 +250,7 @@ export default function GetStartedPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Last 4 digits of SSN <span className="text-gray-400 font-normal">(for verification)</span></label>
             <input
-              type="text"
+              type="password"
               inputMode="numeric"
               maxLength={4}
               placeholder="••••"
@@ -351,7 +362,6 @@ export default function GetStartedPage() {
       { value: "MONTHLY", label: "Monthly", sublabel: "Once a month" },
     ];
 
-    // Min start date: tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const minDate = tomorrow.toISOString().split("T")[0];
@@ -372,7 +382,6 @@ export default function GetStartedPage() {
     return (
       <WizardShell step={4} totalSteps={5} title="Set Up Your Payment Plan" subtitle="Choose a schedule and amount that fits your budget." onBack={() => setStep(3)}>
         <div className="space-y-5">
-          {/* Frequency */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">How often will you pay?</label>
             <div className="grid grid-cols-3 gap-2">
@@ -394,7 +403,6 @@ export default function GetStartedPage() {
             </div>
           </div>
 
-          {/* Amount */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Payment amount per installment</label>
             <div className="relative">
@@ -416,7 +424,6 @@ export default function GetStartedPage() {
             )}
           </div>
 
-          {/* Start Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">First payment date</label>
             <input
@@ -505,7 +512,7 @@ export default function GetStartedPage() {
         </p>
 
         <button
-          onClick={() => setSubmitted(true)}
+          onClick={async () => { const res = await fetch('/api/payment-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accountNumber: debt?.accountNumber ?? accountInfo.accountNumber, frequency: planForm.frequency, installmentAmount: planForm.installmentAmount, startDate: planForm.startDate }) }); if (res.ok) setSubmitted(true); else setPlanError('Submission failed. Please try again.'); }}
           className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold py-4 rounded-xl text-base transition-colors mb-3"
         >
           Submit Payment Plan Request
@@ -554,7 +561,6 @@ export default function GetStartedPage() {
     return (
       <WizardShell step={4} totalSteps={5} title="Tell Us About the Dispute" subtitle="Fill in the details below. Our team will review your case." onBack={() => setStep(path === "dispute" && debt ? 3 : 2)}>
         <div className="space-y-4">
-          {/* Reason */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">What&apos;s the reason for the dispute?</label>
             <select
@@ -569,7 +575,6 @@ export default function GetStartedPage() {
             </select>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Describe your dispute</label>
             <textarea
@@ -581,7 +586,6 @@ export default function GetStartedPage() {
             />
           </div>
 
-          {/* Contact info */}
           <div className="border-t border-gray-100 pt-4 space-y-3">
             <p className="text-sm font-medium text-gray-700">Your contact information</p>
             <input
@@ -607,7 +611,6 @@ export default function GetStartedPage() {
             />
           </div>
 
-          {/* Call callout */}
           <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 text-sm text-blue-800">
             <span className="font-semibold">Tip:</span> For complex disputes, calling us directly is often faster:{" "}
             <a href={`tel:${FIRM.phone}`} className="underline font-semibold">{FIRM.phone}</a>
@@ -670,7 +673,7 @@ export default function GetStartedPage() {
           We recommend calling <a href={`tel:${FIRM.phone}`} className="font-semibold underline">{FIRM.phone}</a> to discuss your dispute with an attorney directly.
         </div>
 
-        <button onClick={() => setSubmitted(true)} className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-xl text-base transition-colors mb-3">
+        <button onClick={async () => { const res = await fetch("/api/dispute", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accountNumber: debt?.accountNumber ?? accountInfo.accountNumber, reason: disputeForm.reason, description: disputeForm.description, name: disputeForm.name, email: disputeForm.email, phone: disputeForm.phone }) }); if (res.ok) setSubmitted(true); else setDisputeError("Submission failed. Please try again."); }} className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-4 rounded-xl text-base transition-colors mb-3">
           Submit Dispute
         </button>
         <button onClick={() => setStep(4)} className="w-full border-2 border-gray-200 hover:border-gray-400 text-gray-600 font-semibold py-3 rounded-xl text-sm transition-colors">
@@ -680,6 +683,5 @@ export default function GetStartedPage() {
     );
   }
 
-  // Fallback
   return null;
 }
