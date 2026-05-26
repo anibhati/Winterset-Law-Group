@@ -140,7 +140,7 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <Link href="/payment" className="bg-navy-900 text-white rounded-2xl p-4 text-center hover:bg-navy-800 transition-colors">
           <div className="font-bold text-sm mb-1">Set Up Plan</div>
           <div className="text-white/60 text-xs">Start a new request</div>
@@ -148,6 +148,10 @@ export default async function DashboardPage() {
         <Link href="/schedule" className="bg-gold-500 text-white rounded-2xl p-4 text-center hover:bg-gold-600 transition-colors">
           <div className="font-bold text-sm mb-1">Talk to Us</div>
           <div className="text-white/60 text-xs">Schedule a call</div>
+        </Link>
+        <Link href="/dispute" className="bg-red-700 text-white rounded-2xl p-4 text-center hover:bg-red-800 transition-colors">
+          <div className="font-bold text-sm mb-1">File Dispute</div>
+          <div className="text-white/60 text-xs">Contest your debt</div>
         </Link>
       </div>
 
