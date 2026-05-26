@@ -101,7 +101,7 @@ export default function LookupPage() {
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-xs text-gray-500 mt-1">
-              We use this to verify it's you. We never display or share your full SSN.
+              We use this to verify it&apos;s you. We never display or share your full SSN.
             </p>
           </div>
 
