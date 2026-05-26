@@ -8,18 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String                @id @default(cuid())
-  email         String                @unique
-  phone         String?
-  name          String
-  password      String
-  role          Role                  @default(CLIENT)
-  createdAt     DateTime              @default(now())
-  auditLogs     AuditLog[]
-  consultations ConsultationBooking[]
-  debtAccount   DebtAccount?
-  disputes      DisputeRequest[]
-  planRequests  PaymentPlanRequest[]
+  id                  String                @id @default(cuid())
+  email               String                @unique
+  phone               String?
+  name                String
+  password            String
+  role                Role                  @default(CLIENT)
+  createdAt           DateTime              @default(now())
+  auditLogs           AuditLog[]
+  consultations       ConsultationBooking[]
+  debtAccount         DebtAccount?
+  disputes            DisputeRequest[]
+  planRequests        PaymentPlanRequest[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model DebtAccount {
@@ -153,4 +154,16 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
