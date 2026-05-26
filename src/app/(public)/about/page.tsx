@@ -27,7 +27,7 @@ export default function AboutPage() {
                 At Winterset Law Group, we believe that navigating a debt obligation to the State of Ohio doesn&apos;t have to be an overwhelming or frightening experience. Our &ldquo;People First&rdquo; philosophy guides everything we do, from the way we explain your account to the flexible payment solutions we help you build.
               </p>
               <p className="text-gray-700 leading-relaxed">
-                We are dedicated to treating every individual with dignity and respect, providing clear and honest
+                We are dedicated to treating every individual with dignity and respect, providing clear and honest1
                 communication, and working toward resolutions that are fair and achievable. Our goal is not just to
                 collect. It is to help you move forward.
               </p>
@@ -80,6 +80,7 @@ export default function AboutPage() {
               { name: "Jack Stanovic", title: null, phone: "614-453-1200", email: "jack.stanovic@wintersetlawgroup.com" },
               { name: "Kaitlyn Mincey", title: null, phone: "614-453-1200", email: "kaitlyn.mincey@wintersetlawgroup.com" },
               { name: "Rafik Zanoun", title: null, phone: "614-453-1200", email: "rafik.zanoun@wintersetlawgroup.com" },
+              { name: "Aniruddha Singh Bhati", title: null, phone: "614-453-1200", email: "ani.bhati@wintersetlawgroup.com" },
             ].map((member) => (
               <div key={member.name} className="card">
                 <div className="w-14 h-14 rounded-full bg-navy-100 mx-auto mb-3 flex items-center justify-center">
