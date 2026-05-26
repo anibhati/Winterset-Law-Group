@@ -141,7 +141,7 @@ export default async function DashboardPage() {
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <Link href="/get-started" className="bg-navy-900 text-white rounded-2xl p-4 text-center hover:bg-navy-800 transition-colors">
+        <Link href="/payment" className="bg-navy-900 text-white rounded-2xl p-4 text-center hover:bg-navy-800 transition-colors">
           <div className="font-bold text-sm mb-1">Set Up Plan</div>
           <div className="text-white/60 text-xs">Start a new request</div>
         </Link>

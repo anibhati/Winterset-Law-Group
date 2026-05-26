@@ -7,47 +7,99 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Users ───────────────────────────────────────────────────────────────────
-
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  phone     String?
-  name      String
-  password  String
-  role      Role     @default(CLIENT)
-  createdAt DateTime @default(now())
-
-  debtAccount   DebtAccount?
-  planRequests  PaymentPlanRequest[]
-  disputes      DisputeRequest[]
-  consultations ConsultationBooking[]
+  id            String                @id @default(cuid())
+  email         String                @unique
+  phone         String?
+  name          String
+  password      String
+  role          Role                  @default(CLIENT)
+  createdAt     DateTime              @default(now())
   auditLogs     AuditLog[]
+  consultations ConsultationBooking[]
+  debtAccount   DebtAccount?
+  disputes      DisputeRequest[]
+  planRequests  PaymentPlanRequest[]
 }
-
-enum Role {
-  CLIENT
-  STAFF
-  ATTORNEY
-}
-
-// ─── Debt Accounts ────────────────────────────────────────────────────────────
 
 model DebtAccount {
-  id             String        @id @default(cuid())
-  accountNumber  String        @unique
-  userId         String?       @unique
-  user           User?         @relation(fields: [userId], references: [id])
+  id             String               @id @default(cuid())
+  accountNumber  String               @unique
+  userId         String?              @unique
   debtorName     String
   last4Ssn       String
   debtType       DebtType
   originalAmount Float
   currentBalance Float
   agency         String
-  status         AccountStatus @default(ACTIVE)
-  createdAt      DateTime      @default(now())
+  status         AccountStatus        @default(ACTIVE)
+  createdAt      DateTime             @default(now())
+  user           User?                @relation(fields: [userId], references: [id])
+  planRequests   PaymentPlanRequest[]
+}
 
-  planRequests PaymentPlanRequest[]
+model PaymentPlanRequest {
+  id                String        @id @default(cuid())
+  userId            String?
+  debtAccountId     String
+  frequency         Frequency
+  installmentAmount Float
+  startDate         DateTime
+  status            RequestStatus @default(PENDING)
+  staffNotes        String?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  debtAccount       DebtAccount   @relation(fields: [debtAccountId], references: [id])
+  user              User?         @relation(fields: [userId], references: [id])
+}
+
+model DisputeRequest {
+  id            String        @id @default(cuid())
+  userId        String?
+  accountNumber String
+  name          String
+  email         String
+  phone         String
+  reason        DisputeReason
+  description   String
+  status        RequestStatus @default(PENDING)
+  staffNotes    String?
+  createdAt     DateTime      @default(now())
+  user          User?         @relation(fields: [userId], references: [id])
+}
+
+model ConsultationBooking {
+  id            String            @id @default(cuid())
+  userId        String?
+  name          String
+  phone         String
+  email         String
+  topic         ConsultationTopic
+  accountNumber String?
+  preferredDate DateTime
+  timeSlot      String
+  notes         String?
+  status        BookingStatus     @default(PENDING)
+  confirmedBy   String?
+  createdAt     DateTime          @default(now())
+  user          User?             @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  metadata  Json?
+  ip        String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  CLIENT
+  STAFF
+  ATTORNEY
 }
 
 enum DebtType {
@@ -68,24 +120,6 @@ enum AccountStatus {
   DISPUTED
 }
 
-// ─── Payment Plan Requests ────────────────────────────────────────────────────
-
-model PaymentPlanRequest {
-  id                String        @id @default(cuid())
-  userId            String?
-  user              User?         @relation(fields: [userId], references: [id])
-  debtAccountId     String
-  debtAccount       DebtAccount   @relation(fields: [debtAccountId], references: [id])
-  frequency         Frequency
-  installmentAmount Float
-  startDate         DateTime
-  status            RequestStatus @default(PENDING)
-  staffNotes        String?
-  reviewedBy        String?
-  reviewedAt        DateTime?
-  createdAt         DateTime      @default(now())
-}
-
 enum Frequency {
   WEEKLY
   BIWEEKLY
@@ -99,48 +133,12 @@ enum RequestStatus {
   CANCELLED
 }
 
-// ─── Disputes ─────────────────────────────────────────────────────────────────
-
-model DisputeRequest {
-  id            String        @id @default(cuid())
-  userId        String?
-  user          User?         @relation(fields: [userId], references: [id])
-  accountNumber String
-  name          String
-  email         String
-  phone         String
-  reason        DisputeReason
-  description   String
-  status        RequestStatus @default(PENDING)
-  staffNotes    String?
-  createdAt     DateTime      @default(now())
-}
-
 enum DisputeReason {
   WRONG_AMOUNT
   ALREADY_PAID
   NOT_MY_DEBT
   IDENTITY_THEFT
   OTHER
-}
-
-// ─── Consultation Bookings ────────────────────────────────────────────────────
-
-model ConsultationBooking {
-  id            String            @id @default(cuid())
-  userId        String?
-  user          User?             @relation(fields: [userId], references: [id])
-  name          String
-  phone         String
-  email         String
-  topic         ConsultationTopic
-  accountNumber String?
-  preferredDate DateTime
-  timeSlot      String
-  notes         String?
-  status        BookingStatus     @default(PENDING)
-  confirmedBy   String?
-  createdAt     DateTime          @default(now())
 }
 
 enum ConsultationTopic {
@@ -155,16 +153,4 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
-}
-
-// ─── Audit Log ────────────────────────────────────────────────────────────────
-
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
-  action    String
-  metadata  Json?
-  ip        String?
-  createdAt DateTime @default(now())
 }

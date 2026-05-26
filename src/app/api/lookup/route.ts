@@ -1,15 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { accountNumber, lastName } = body
+    const { accountNumber, lastName, last4Ssn } = body
 
-    if (!accountNumber || !lastName) {
+    if (!accountNumber || !lastName || !last4Ssn) {
       return NextResponse.json(
-        { error: 'Account number and last name are required.' },
+        { error: 'Account number, last name, and last 4 of SSN are required.' },
         { status: 400 }
+      )
+    }
+
+    // Normalize last4Ssn — strip anything that isn't a digit, then check length
+    const cleanSsn = String(last4Ssn).replace(/\D/g, '')
+    if (cleanSsn.length !== 4) {
+      return NextResponse.json(
+        { error: 'We could not find an account matching those details.' },
+        { status: 404 }
       )
     }
 
@@ -17,21 +28,39 @@ export async function POST(request: NextRequest) {
       where: { accountNumber: accountNumber.trim() },
     })
 
-    if (!account) {
-      return NextResponse.json(
-        { error: 'We could not find an account matching those details.' },
-        { status: 404 }
-      )
-    }
+    // Use a single generic error for every "no match" case so attackers can't
+    // distinguish wrong account # from wrong name from wrong SSN.
+    const genericNotFound = NextResponse.json(
+      { error: 'We could not find an account matching those details.' },
+      { status: 404 }
+    )
 
-    // Verify last name matches (case-insensitive)
+    if (!account) return genericNotFound
+
     const accountLastName = account.debtorName.split(' ').slice(-1)[0].toLowerCase()
-    if (accountLastName !== lastName.trim().toLowerCase()) {
-      // Return the same generic error to avoid leaking which accounts exist
-      return NextResponse.json(
-        { error: 'We could not find an account matching those details.' },
-        { status: 404 }
-      )
+    if (accountLastName !== lastName.trim().toLowerCase()) return genericNotFound
+
+    if (account.last4Ssn !== cleanSsn) return genericNotFound
+
+    // --- Claim logic: only runs if the user is logged in ---
+    const session = await getServerSession(authOptions)
+    let claimed = false
+
+    if (session?.user?.id) {
+      if (account.userId && account.userId !== session.user.id) {
+        // Account is already claimed by someone else — generic error, don't reveal anything
+        return genericNotFound
+      }
+
+      if (!account.userId) {
+        // Unclaimed — link it to this user
+        await prisma.debtAccount.update({
+          where: { id: account.id },
+          data: { userId: session.user.id },
+        })
+        claimed = true
+      }
+      // If already claimed by this same user, no-op (idempotent)
     }
 
     return NextResponse.json({
@@ -42,6 +71,7 @@ export async function POST(request: NextRequest) {
       originalAmount: account.originalAmount,
       agency: account.agency,
       status: account.status,
+      claimed, // true if we just linked the account to the session user
     })
   } catch (error) {
     console.error('Lookup error:', error)
