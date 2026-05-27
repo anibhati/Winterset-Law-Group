@@ -47,6 +47,10 @@
     @apply rounded-xl bg-white p-6 shadow-sm border border-gray-100 transition-shadow duration-200 hover:shadow-md;
   }
 
+  .header-shadow {
+    box-shadow: 0 6px 24px -4px rgba(16, 40, 59, 0.5), 0 2px 6px -1px rgba(0, 0, 0, 0.15);
+  }
+
   .section-title {
     @apply text-3xl font-serif font-bold text-navy-900 md:text-4xl;
   }
