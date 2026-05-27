@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "About Us" };
 
 export default function AboutPage() {
   return (
-    <div className="py-16">
+    <div>
       {/* Page Header */}
       <section className="bg-navy-900 text-white py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -27,7 +27,7 @@ export default function AboutPage() {
                 At Winterset Law Group, we believe that navigating a debt obligation to the State of Ohio doesn&apos;t have to be an overwhelming or frightening experience. Our &ldquo;People First&rdquo; philosophy guides everything we do, from the way we explain your account to the flexible payment solutions we help you build.
               </p>
               <p className="text-gray-700 leading-relaxed">
-                We are dedicated to treating every individual with dignity and respect, providing clear and honest1
+                We are dedicated to treating every individual with dignity and respect, providing clear and honest
                 communication, and working toward resolutions that are fair and achievable. Our goal is not just to
                 collect. It is to help you move forward.
               </p>
@@ -55,7 +55,7 @@ export default function AboutPage() {
                 Understanding ORC 109.08 &amp; Special Counsel
               </h3>
               <p className="text-gray-700 text-sm leading-relaxed mb-3">
-                Ohio Revised Code § 109.08 grants the Attorney General the authority to appoint Special Counsel,
+                Ohio Revised Code &sect; 109.08 grants the Attorney General the authority to appoint Special Counsel,
                 private law firms, to assist with collection of debts owed to the State of Ohio. These debts are
                 first certified to the AG&apos;s Office by the originating state agency (such as the Department of
                 Taxation or Department of Job and Family Services) before being assigned to Special Counsel for
@@ -95,7 +95,7 @@ export default function AboutPage() {
                   <p className="text-gold-500 text-xs text-center mb-3">{member.title}</p>
                 )}
                 <div className="h-px bg-gray-100 mb-3 mt-3"></div>
-                <div className="space-y-2 text-xs text-gray-600">
+                <div className="text-xs text-gray-600 space-y-1.5">
                   <div className="flex justify-between">
                     <span className="font-medium text-gray-700">Phone:</span>
                     <span>{member.phone}</span>
