@@ -24,7 +24,7 @@ export default function AboutPage() {
               <h2 className="text-2xl font-serif font-bold text-navy-900 mb-4">Our Mission</h2>
               <div className="gold-divider mb-6"></div>
               <p className="text-gray-700 leading-relaxed mb-4">
-                A debt owed to the State of Ohio is rarely simple, and rarely welcome news. Our work is to make it clear and resolvable. The Winterset Law Group "People First" philosophy guides how we explain accounts, how we structure payment options, and how we treat every person who calls.
+                A debt owed to the State of Ohio is rarely simple, and rarely welcome news. Our work is to make it clear and resolvable. The Winterset Law Group &ldquo;People First&rdquo; philosophy guides how we explain accounts, how we structure payment options, and how we treat every person who calls.
               </p>
               <p className="text-gray-700 leading-relaxed">
                 We are dedicated to treating every individual with dignity and respect, providing clear and honest
