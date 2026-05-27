@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { FIRM, DISCLOSURES } from "@/lib/constants";
 
 export function Footer() {
@@ -8,7 +9,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Firm Info */}
           <div>
-            <h3 className="font-serif font-bold text-lg text-white mb-2">{FIRM.name}</h3>
+            <Image
+              src="/WLGNew.png"
+              alt={FIRM.name}
+              width={240}
+              height={48}
+              className="h-12 w-auto mb-3"
+            />
             <p className="text-gold-500 text-xs uppercase tracking-widest mb-4">{FIRM.tagline}</p>
             <p className="text-white/70 text-sm leading-relaxed">
               {FIRM.role} under {FIRM.authority}.<br />
