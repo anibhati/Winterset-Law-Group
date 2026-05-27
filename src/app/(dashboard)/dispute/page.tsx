@@ -44,7 +44,7 @@ export default async function DisputePage() {
           <p className="text-yellow-800 text-sm">
             Our team is reviewing your dispute submitted on{" "}
             {new Date(pending.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}.
-            We&apos;ll contact you within 3–5 business days.
+           We will respond within three to five business days.
           </p>
           <p className="text-yellow-800 text-sm mt-3">
             Questions? Call us at{" "}

@@ -6,7 +6,7 @@ export const FIRM = {
   email: "ohiospecialcounsel@wintersetlawgroup.com",
   smsNumber: "54627",
   smsKeyword: "JOIN",
-  hours: "Monday – Friday, 8:30 AM – 4:30 PM",
+  hours: "Monday to Friday, 8:30 AM to 4:30 PM",
   address: "3980 N Hampton Dr., Powell, OH 43065",
   partner: {
     name: "Christopher J. Stevens",
@@ -22,10 +22,10 @@ export const DISCLOSURES = {
   debtCollection:
     "This is an attempt to collect a debt, and any information obtained will be used for that purpose.",
   smsOptIn:
-    "By signing up via text, you agree to receive recurring messages regarding your account, such as payment reminders, at the cell number used when signing up. Reply HELP for help & STOP to cancel. Message frequency may vary. Msg & Data rates may apply.",
+    "By signing up via text, you agree to receive recurring messages regarding your account, such as payment reminders, at the cell number used when signing up. Reply HELP for help and STOP to cancel. Message frequency may vary. Message and data rates may apply.",
 } as const;
 
-// Available consultation time slots (Mon–Fri)
+// Available consultation time slots (Monday to Friday)
 export const TIME_SLOTS = [
   "9:00 AM",
   "9:30 AM",
@@ -39,7 +39,6 @@ export const TIME_SLOTS = [
   "2:30 PM",
   "3:00 PM",
   "3:30 PM",
-  "4:00 PM",
 ] as const;
 
 export const DEBT_TYPE_LABELS: Record<string, string> = {

@@ -461,7 +461,7 @@ export default function GetStartedPage() {
             </div>
             <h2 className="text-xl font-serif font-bold text-navy-900 mb-2">Your Plan Is Under Review</h2>
             <p className="text-gray-500 text-sm leading-relaxed mb-6">
-              Our team will review your payment plan request and contact you within 1–2 business days to confirm.
+              Our team will review your payment plan request and contact you within one to two business days.
               If you have questions in the meantime, give us a call.
             </p>
             <a
@@ -642,7 +642,7 @@ export default function GetStartedPage() {
             </div>
             <h2 className="text-xl font-serif font-bold text-navy-900 mb-2">Your Dispute Has Been Filed</h2>
             <p className="text-gray-500 text-sm leading-relaxed mb-6">
-              Our team will review your dispute and contact you within 1–2 business days.
+              Our team will review your dispute and respond within one to two business days.
               We strongly recommend also giving us a call so we can discuss your case directly.
             </p>
             <a

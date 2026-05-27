@@ -47,7 +47,7 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Info */}
           <div>
-            <h2 className="text-2xl font-serif font-bold text-navy-900 mb-6">We&apos;re Here to Help</h2>
+            <h2 className="text-2xl font-serif font-bold text-navy-900 mb-6">Contact Our Office</h2>
             <p className="text-gray-600 leading-relaxed mb-8">
               Whether you have questions about your debt, want to discuss payment options, or need to verify
               the legitimacy of a notice you received. Our team is ready to assist.

@@ -38,7 +38,7 @@ export default function DisputeForm() {
         setSubmitting(false);
         return;
       }
-      toast.success("Dispute filed. Our team will review within 3–5 business days.");
+      toast.success("Dispute filed. We will respond within three to five business days.");
       router.push("/dashboard");
       router.refresh();
     } catch {

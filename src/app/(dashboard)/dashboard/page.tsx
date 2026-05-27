@@ -101,7 +101,7 @@ export default async function DashboardPage() {
             <div className="flex justify-between"><span className="text-gray-500">Amount</span><span className="font-semibold">${planRequest.installmentAmount.toFixed(2)}/payment</span></div>
           </div>
           {planRequest.status === "PENDING" && (
-            <p className="text-gray-400 text-xs mt-3">Our team is reviewing your request. We&apos;ll contact you within 1–2 business days.</p>
+            <p className="text-gray-400 text-xs mt-3">Our team is reviewing your request. We will contact you within one to two business days.</p>
           )}
           {planRequest.staffNotes && (
             <div className="mt-3 bg-blue-50 rounded-xl p-3 text-xs text-blue-800">

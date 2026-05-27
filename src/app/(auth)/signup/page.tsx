@@ -118,7 +118,7 @@ export default function SignupPage() {
                 })}
               />
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
-              <p className="text-gray-400 text-xs mt-1">Used for 2FA — required for account security</p>
+              <p className="text-gray-400 text-xs mt-1">Required for two-factor authentication.</p>
             </div>
 
             <div>
