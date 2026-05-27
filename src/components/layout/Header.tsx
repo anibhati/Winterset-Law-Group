@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { FIRM } from "@/lib/constants";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/about", label: "About" },
@@ -19,17 +20,17 @@ export function Header() {
     <header className="bg-navy-900 shadow-lg sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo / Firm Name */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex flex-col leading-tight">
-              <span className="text-white font-serif font-bold text-lg tracking-wide group-hover:text-gold-400 transition-colors">
-                {FIRM.name}
-              </span>
-              <span className="text-gold-500 text-xs font-medium tracking-widest uppercase">
-                Special Counsel · Ohio AG
-              </span>
-            </div>
-          </Link>
+          {/* Logo */}
+<Link href="/" className="flex items-center group">
+  <Image
+    src="/WLGNew.png"
+    alt={FIRM.name}
+    width={240}
+    height={48}
+    priority
+    className="h-10 w-auto group-hover:opacity-90 transition-opacity"
+  />
+</Link>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
