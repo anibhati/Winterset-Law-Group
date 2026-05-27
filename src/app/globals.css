@@ -5,7 +5,7 @@
 @layer base {
   :root {
     --navy: #10283B;
-    --gold: #C9A84C;
+    --gold: #B1784D;
   }
 
   html {
@@ -28,15 +28,15 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-navy-900 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-navy-800 focus-visible:ring-2 focus-visible:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-navy-900 px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-navy-800 focus-visible:ring-2 focus-visible:ring-gold-500 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border-2 border-navy-900 px-6 py-3 text-sm font-semibold text-navy-900 transition-all hover:bg-navy-50 focus-visible:ring-2 focus-visible:ring-gold-500 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border-2 border-navy-900 px-6 py-3 text-sm font-semibold text-navy-900 transition-colors duration-200 hover:bg-navy-50 focus-visible:ring-2 focus-visible:ring-gold-500 disabled:opacity-50;
   }
 
   .btn-gold {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-gold-600 focus-visible:ring-2 focus-visible:ring-navy-900;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-gold-600 focus-visible:ring-2 focus-visible:ring-navy-900;
   }
 
   .input-field {
@@ -44,7 +44,7 @@
   }
 
   .card {
-    @apply rounded-xl bg-white p-6 shadow-sm border border-gray-100;
+    @apply rounded-xl bg-white p-6 shadow-sm border border-gray-100 transition-shadow duration-200 hover:shadow-md;
   }
 
   .section-title {
