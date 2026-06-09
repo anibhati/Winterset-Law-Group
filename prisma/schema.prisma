@@ -50,6 +50,8 @@ model PaymentPlanRequest {
   staffNotes        String?
   reviewedBy        String?
   reviewedAt        DateTime?
+  crmRecordId       String?
+  crmSyncedAt       DateTime?
   createdAt         DateTime      @default(now())
   debtAccount       DebtAccount   @relation(fields: [debtAccountId], references: [id])
   user              User?         @relation(fields: [userId], references: [id])
@@ -66,6 +68,8 @@ model DisputeRequest {
   description   String
   status        RequestStatus @default(PENDING)
   staffNotes    String?
+  crmRecordId   String?
+  crmSyncedAt   DateTime?
   createdAt     DateTime      @default(now())
   user          User?         @relation(fields: [userId], references: [id])
 }
@@ -83,6 +87,8 @@ model ConsultationBooking {
   notes         String?
   status        BookingStatus     @default(PENDING)
   confirmedBy   String?
+  crmRecordId   String?
+  crmSyncedAt   DateTime?
   createdAt     DateTime          @default(now())
   user          User?             @relation(fields: [userId], references: [id])
 }
@@ -95,6 +101,18 @@ model AuditLog {
   ip        String?
   createdAt DateTime @default(now())
   user      User?    @relation(fields: [userId], references: [id])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 enum Role {
@@ -154,16 +172,4 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
-}
-
-model PasswordResetToken {
-  id        String    @id @default(cuid())
-  token     String    @unique
-  userId    String
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
