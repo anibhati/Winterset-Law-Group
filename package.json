@@ -16,7 +16,9 @@
     "@auth/prisma-adapter": "^2.7.2",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@prisma/client": "^5.22.0",
+    "@sendgrid/mail": "^8.1.6",
     "@stripe/stripe-js": "^4.9.0",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "framer-motion": "^12.40.0",
     "next": "^15.5.16",
@@ -34,6 +36,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.16",
