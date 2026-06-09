@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -21,6 +22,9 @@ model User {
   disputes            DisputeRequest[]
   planRequests        PaymentPlanRequest[]
   passwordResetTokens PasswordResetToken[]
+  threads             MessageThread[]
+  sentMessages        Message[]             @relation("MessageSender")
+  notifications       Notification[]
 }
 
 model DebtAccount {
@@ -37,6 +41,7 @@ model DebtAccount {
   createdAt      DateTime             @default(now())
   user           User?                @relation(fields: [userId], references: [id])
   planRequests   PaymentPlanRequest[]
+  threads        MessageThread[]
 }
 
 model PaymentPlanRequest {
@@ -115,6 +120,46 @@ model PasswordResetToken {
   @@index([userId])
 }
 
+model MessageThread {
+  id            String        @id @default(cuid())
+  userId        String
+  debtAccountId String?
+  subject       String
+  status        ThreadStatus  @default(OPEN)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id])
+  debtAccount   DebtAccount?  @relation(fields: [debtAccountId], references: [id])
+  messages      Message[]
+
+  @@index([userId])
+}
+
+model Message {
+  id        String        @id @default(cuid())
+  threadId  String
+  senderId  String
+  content   String
+  readAt    DateTime?
+  createdAt DateTime      @default(now())
+  thread    MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender    User          @relation("MessageSender", fields: [senderId], references: [id])
+
+  @@index([threadId])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
 enum Role {
   CLIENT
   STAFF
@@ -172,4 +217,9 @@ enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+enum ThreadStatus {
+  OPEN
+  CLOSED
 }

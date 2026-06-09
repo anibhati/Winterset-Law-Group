@@ -6,6 +6,12 @@ import { db } from "@/lib/db";
 import { FIRM, DEBT_TYPE_LABELS } from "@/lib/constants";
 import PaymentPlanForm from "./PaymentPlanForm";
 
+import BackButton from '@/components/ui/BackButton';
+// ...
+<div className="mb-6">
+  <BackButton href="/dashboard" label="Back to dashboard" />
+</div>
+
 export default async function PaymentPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
@@ -90,4 +96,6 @@ export default async function PaymentPage() {
       <PaymentPlanForm currentBalance={account.currentBalance} />
     </div>
   );
+
+  
 }

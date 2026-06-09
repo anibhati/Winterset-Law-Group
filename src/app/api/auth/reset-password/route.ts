@@ -1,41 +1,56 @@
-import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+// src/app/api/auth/reset-password/route.ts
 
-export async function POST(request: NextRequest) {
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt";
+
+export async function POST(req: Request) {
   try {
-    const { token, password } = await request.json();
+    const { token, password } = await req.json();
 
     if (!token || !password) {
-      return NextResponse.json({ error: "Token and password are required." }, { status: 400 });
-    }
-
-    if (
-      password.length < 12 ||
-      !/[A-Z]/.test(password) ||
-      !/[0-9]/.test(password) ||
-      !/[^A-Za-z0-9]/.test(password)
-    ) {
       return NextResponse.json(
-        { error: "Password must be at least 12 characters with an uppercase letter, number, and special character." },
+        { error: "Token and new password are required" },
         { status: 400 }
       );
     }
 
-    const resetToken = await prisma.passwordResetToken.findUnique({ where: { token } });
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
+        { status: 400 }
+      );
+    }
+
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
 
     if (!resetToken) {
-      return NextResponse.json({ error: "Invalid or expired reset link." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid or expired reset link" },
+        { status: 400 }
+      );
     }
+
     if (resetToken.usedAt) {
-      return NextResponse.json({ error: "This reset link has already been used." }, { status: 400 });
+      return NextResponse.json(
+        { error: "This reset link has already been used" },
+        { status: 400 }
+      );
     }
+
     if (resetToken.expiresAt < new Date()) {
-      return NextResponse.json({ error: "This reset link has expired. Please request a new one." }, { status: 400 });
+      return NextResponse.json(
+        { error: "This reset link has expired" },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Update password and mark token as used in one transaction
     await prisma.$transaction([
       prisma.user.update({
         where: { id: resetToken.userId },
@@ -47,9 +62,12 @@ export async function POST(request: NextRequest) {
       }),
     ]);
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Reset-password error:", error);
-    return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 });
+    return NextResponse.json({ message: "Password has been reset" });
+  } catch (err) {
+    console.error("[reset-password]", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }

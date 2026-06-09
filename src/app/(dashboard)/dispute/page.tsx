@@ -6,6 +6,12 @@ import { db } from "@/lib/db";
 import { FIRM } from "@/lib/constants";
 import DisputeForm from "./DisputeForm";
 
+import BackButton from '@/components/ui/BackButton';
+// ...
+<div className="mb-6">
+  <BackButton href="/dashboard" label="Back to dashboard" />
+</div>
+
 export default async function DisputePage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");

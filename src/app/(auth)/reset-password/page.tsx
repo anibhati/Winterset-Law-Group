@@ -6,6 +6,12 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import BackButton from '@/components/ui/BackButton';
+// ...
+<div className="mb-6">
+  <BackButton href="/dashboard" label="Back to dashboard" />
+</div>
+
 interface ResetForm { password: string; confirmPassword: string }
 
 function ResetForm() {

@@ -4,6 +4,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 
+import BackButton from '@/components/ui/BackButton';
+// ...
+<div className="mb-6">
+  <BackButton href="/dashboard" label="Back to dashboard" />
+</div>
+
 export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
