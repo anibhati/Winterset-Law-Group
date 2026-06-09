@@ -1,69 +1,123 @@
+// src/app/(auth)/forgot-password/page.tsx
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import Link from "next/link";
-
-import BackButton from '@/components/ui/BackButton';
-// ...
-<div className="mb-6">
-  <BackButton href="/dashboard" label="Back to dashboard" />
-</div>
+import { motion } from "framer-motion";
 
 export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ email: string }>();
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
 
-  async function onSubmit({ email }: { email: string }) {
+    setLoading(true);
     setError("");
-    const res = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    if (res.ok) {
+
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Something went wrong");
+        return;
+      }
+
       setSubmitted(true);
-    } else {
+    } catch {
       setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="w-full max-w-md">
-      <div className="card shadow-lg">
-        {submitted ? (
-          <div className="text-center py-8">
-            <div className="text-4xl mb-4">📬</div>
-            <h2 className="text-xl font-serif font-bold text-navy-900 mb-2">Check Your Inbox</h2>
-            <p className="text-gray-600 text-sm">
-              If that email is registered, you&apos;ll receive a password reset link shortly.
-            </p>
-            <Link href="/login" className="btn-primary mt-6 inline-flex">Back to Sign In</Link>
-          </div>
-        ) : (
-          <>
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-serif font-bold text-navy-900">Reset Password</h1>
-              <p className="text-gray-500 text-sm mt-1">Enter your email and we&apos;ll send a reset link</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <h1 className="text-2xl font-semibold text-[#10283B] mb-2">
+            Reset your password
+          </h1>
+
+          {submitted ? (
+            <div>
+              <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                If an account exists with that email, we&apos;ve sent a password
+                reset link. Check your inbox and spam folder.
+              </p>
+              <Link
+                href="/login"
+                className="block w-full text-center py-3 bg-[#10283B] text-white text-sm font-medium rounded-lg hover:bg-[#0d2033] transition-colors"
+              >
+                Back to login
+              </Link>
             </div>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">Email Address</label>
-                <input id="email" type="email" className="input-field" placeholder="you@example.com"
-                  {...register("email", { required: "Email is required" })} />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-              </div>
-              {error && <p className="text-red-600 text-sm">{error}</p>}
-              <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
-                {isSubmitting ? "Sending..." : "Send Reset Link"}
-              </button>
-            </form>
-            <Link href="/login" className="block text-center text-sm text-gold-600 mt-4 hover:underline">Back to Sign In</Link>
-          </>
-        )}
-      </div>
+          ) : (
+            <div>
+              <p className="text-gray-500 text-sm mb-6">
+                Enter your email address and we&apos;ll send you a link to reset
+                your password.
+              </p>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Email address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B1784D]/30 focus:border-[#B1784D]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || !email.trim()}
+                  className="w-full py-3 bg-[#B1784D] text-white text-sm font-medium rounded-lg hover:bg-[#9A6640] disabled:opacity-50 transition-colors"
+                >
+                  {loading ? "Sending..." : "Send reset link"}
+                </button>
+              </form>
+
+              <p className="text-center text-sm text-gray-500 mt-6">
+                Remember your password?{" "}
+                <Link
+                  href="/login"
+                  className="text-[#B1784D] hover:underline font-medium"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 }

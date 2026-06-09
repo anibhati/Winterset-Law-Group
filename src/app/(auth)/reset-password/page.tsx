@@ -1,105 +1,181 @@
+// src/app/(auth)/reset-password/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Suspense } from "react";
+import { motion } from "framer-motion";
 
-import BackButton from '@/components/ui/BackButton';
-// ...
-<div className="mb-6">
-  <BackButton href="/dashboard" label="Back to dashboard" />
-</div>
-
-interface ResetForm { password: string; confirmPassword: string }
-
-function ResetForm() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const token = searchParams.get("token") || "";
+  const token = searchParams.get("token");
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<ResetForm>();
-  const password = watch("password");
-
-  async function onSubmit({ password }: ResetForm) {
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setError("");
-    const res = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
-    });
-    if (res.ok) {
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        return;
+      }
+
       setSuccess(true);
-      setTimeout(() => router.push("/login"), 3000);
-    } else {
-      const body = await res.json().catch(() => ({}));
-      setError(body.error || "Reset failed. The link may have expired.");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
-  if (!token) return (
-    <div className="text-center">
-      <p className="text-red-600 mb-4">Invalid reset link.</p>
-      <Link href="/forgot-password" className="btn-primary">Request New Link</Link>
-    </div>
-  );
+  if (!token) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <h1 className="text-2xl font-semibold text-[#10283B] mb-4">
+          Invalid link
+        </h1>
+        <p className="text-gray-500 text-sm mb-6">
+          This password reset link is invalid or has expired. Please request a
+          new one.
+        </p>
+        <Link
+          href="/forgot-password"
+          className="block w-full text-center py-3 bg-[#B1784D] text-white text-sm font-medium rounded-lg hover:bg-[#9A6640] transition-colors"
+        >
+          Request new link
+        </Link>
+      </div>
+    );
+  }
 
-  if (success) return (
-    <div className="text-center">
-      <div className="text-4xl mb-3">✅</div>
-      <h2 className="text-xl font-serif font-bold text-navy-900 mb-2">Password Updated</h2>
-      <p className="text-gray-500 text-sm">Redirecting to sign in...</p>
-    </div>
-  );
+  if (success) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <h1 className="text-2xl font-semibold text-[#10283B] mb-4">
+          Password reset
+        </h1>
+        <p className="text-gray-600 text-sm leading-relaxed mb-6">
+          Your password has been updated. You can now sign in with your new
+          password.
+        </p>
+        <Link
+          href="/login"
+          className="block w-full text-center py-3 bg-[#10283B] text-white text-sm font-medium rounded-lg hover:bg-[#0d2033] transition-colors"
+        >
+          Sign in
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-serif font-bold text-navy-900">Set New Password</h1>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-          <input type="password" className="input-field" placeholder="Min. 12 characters"
-            {...register("password", {
-              required: "Required", minLength: { value: 12, message: "At least 12 characters" },
-              validate: {
-                upper: (v) => /[A-Z]/.test(v) || "Uppercase letter required",
-                number: (v) => /[0-9]/.test(v) || "Number required",
-                special: (v) => /[^A-Za-z0-9]/.test(v) || "Special character required",
-              }
-            })} />
-          {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <h1 className="text-2xl font-semibold text-[#10283B] mb-2">
+        Set new password
+      </h1>
+      <p className="text-gray-500 text-sm mb-6">
+        Enter your new password below.
+      </p>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          {error}
         </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-          <input type="password" className="input-field" placeholder="Re-enter password"
-            {...register("confirmPassword", {
-              required: "Required",
-              validate: (v) => v === password || "Passwords do not match",
-            })} />
-          {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>}
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            New password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="At least 8 characters"
+            required
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B1784D]/30 focus:border-[#B1784D]"
+          />
         </div>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
-          {isSubmitting ? "Updating..." : "Update Password"}
+
+        <div>
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Confirm password
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Re-enter your password"
+            required
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#B1784D]/30 focus:border-[#B1784D]"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading || !password || !confirmPassword}
+          className="w-full py-3 bg-[#B1784D] text-white text-sm font-medium rounded-lg hover:bg-[#9A6640] disabled:opacity-50 transition-colors"
+        >
+          {loading ? "Resetting..." : "Reset password"}
         </button>
       </form>
-    </>
+    </div>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className="w-full max-w-md">
-      <div className="card shadow-lg">
-        <Suspense fallback={<p className="text-center text-gray-500">Loading...</p>}>
-          <ResetForm />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        <Suspense
+          fallback={
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-400 text-sm">
+              Loading...
+            </div>
+          }
+        >
+          <ResetPasswordForm />
         </Suspense>
-      </div>
+      </motion.div>
     </div>
   );
 }
