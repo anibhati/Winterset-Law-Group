@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
+import { syncPaymentPlan } from '@/lib/crm/sync'
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +18,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 })
     }
 
-    // Validate frequency against the enum
     const validFrequencies = ['WEEKLY', 'BIWEEKLY', 'MONTHLY']
     if (!validFrequencies.includes(frequency)) {
       return NextResponse.json({ error: 'Invalid payment frequency.' }, { status: 400 })
@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid start date.' }, { status: 400 })
     }
 
-    // Find the user's linked debt account (don't trust account # from the request body)
     const account = await prisma.debtAccount.findUnique({
       where: { userId: session.user.id },
     })
@@ -41,7 +40,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No linked debt account. Please complete the lookup first.' }, { status: 404 })
     }
 
-    // Reject if there's already a PENDING plan — user must cancel it before submitting a new one
     const existingPending = await prisma.paymentPlanRequest.findFirst({
       where: { userId: session.user.id, status: 'PENDING' },
     })
@@ -49,7 +47,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You already have a pending plan under review.' }, { status: 409 })
     }
 
-    await prisma.paymentPlanRequest.create({
+    const plan = await prisma.paymentPlanRequest.create({
       data: {
         userId: session.user.id,
         debtAccountId: account.id,
@@ -57,6 +55,16 @@ export async function POST(request: NextRequest) {
         installmentAmount: amount,
         startDate: start,
       },
+    })
+
+    // Fire-and-forget CRM sync
+    syncPaymentPlan({
+      id: plan.id,
+      accountNumber: account.accountNumber,
+      debtorName: account.debtorName,
+      frequency,
+      installmentAmount: amount,
+      startDate: start,
     })
 
     return NextResponse.json({ success: true })

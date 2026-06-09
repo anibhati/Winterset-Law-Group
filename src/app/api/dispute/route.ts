@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
+import { syncDispute } from '@/lib/crm/sync'
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'You already have a dispute under review.' }, { status: 409 })
     }
 
-    await prisma.disputeRequest.create({
+    const dispute = await prisma.disputeRequest.create({
       data: {
         userId: session.user.id,
         accountNumber: account.accountNumber,
@@ -55,6 +56,17 @@ export async function POST(request: NextRequest) {
         email: user?.email ?? '',
         phone: user?.phone ?? '',
       },
+    })
+
+    // Fire-and-forget CRM sync
+    syncDispute({
+      id: dispute.id,
+      accountNumber: account.accountNumber,
+      name: user?.name ?? '',
+      email: user?.email ?? '',
+      phone: user?.phone ?? '',
+      reason,
+      description: description.trim(),
     })
 
     return NextResponse.json({ success: true })

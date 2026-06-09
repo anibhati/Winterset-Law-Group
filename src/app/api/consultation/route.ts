@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { syncConsultation } from "@/lib/crm/sync";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -37,6 +38,19 @@ export async function POST(req: NextRequest) {
       timeSlot,
       notes: notes ?? null,
     },
+  });
+
+  // Fire-and-forget CRM sync
+  syncConsultation({
+    id: booking.id,
+    name,
+    email,
+    phone,
+    topic,
+    accountNumber: accountNumber ?? null,
+    preferredDate: new Date(preferredDate),
+    timeSlot,
+    notes: notes ?? null,
   });
 
   return NextResponse.json({ id: booking.id, message: "Consultation booked." }, { status: 201 });
