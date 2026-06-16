@@ -8,6 +8,17 @@ const config: CapacitorConfig = {
     url: 'https://winterset-law-group.vercel.app',
     cleartext: false,
   },
+  plugins: {
+    SplashScreen: {
+      launchAutoHide: true,
+      launchShowDuration: 2000,
+      backgroundColor: '#10283B',
+      showSpinner: false,
+      iosSpinnerStyle: 'small',
+      splashFullScreen: true,
+      splashImmersive: true,
+    },
+  },
 };
 
 export default config;
