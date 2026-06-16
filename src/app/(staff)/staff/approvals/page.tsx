@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect, useCallback } from "react";
 import { FIRM, DEBT_TYPE_LABELS } from "@/lib/constants";
 
@@ -69,7 +68,7 @@ export default function ApprovalsPage() {
       if (cRes.ok) setConsultations(await cRes.json());
       if (dRes.ok) setDisputes(await dRes.json());
     } catch {
-      // Not connected to DB yet
+      // silently fail
     } finally {
       setLoading(false);
     }
@@ -82,6 +81,28 @@ export default function ApprovalsPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ planId, action, staffNotes: notes }),
+    });
+    setReviewingId(null);
+    setNotes("");
+    fetchAll();
+  }
+
+  async function reviewDispute(disputeId: string, action: "APPROVED" | "REJECTED") {
+    await fetch("/api/staff/disputes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ disputeId, action, staffNotes: notes }),
+    });
+    setReviewingId(null);
+    setNotes("");
+    fetchAll();
+  }
+
+  async function reviewConsultation(consultationId: string, action: "CONFIRMED" | "CANCELLED") {
+    await fetch("/api/staff/consultations", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ consultationId, action, staffNotes: notes }),
     });
     setReviewingId(null);
     setNotes("");
@@ -101,7 +122,6 @@ export default function ApprovalsPage() {
         <p className="text-gray-500 text-sm mt-1">Review and act on client requests.</p>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-2 border-b border-gray-200">
         {tabs.map(({ key, label, count }) => (
           <button
@@ -145,33 +165,19 @@ export default function ApprovalsPage() {
                 <div><span className="text-gray-500">Amount</span><p className="font-semibold">${plan.installmentAmount.toFixed(2)}/payment</p></div>
                 <div><span className="text-gray-500">Start Date</span><p className="font-semibold">{new Date(plan.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p></div>
               </div>
-
               {reviewingId === plan.id ? (
                 <div className="space-y-3">
-                  <textarea
-                    rows={2}
-                    placeholder="Optional notes to client…"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-900 resize-none"
-                  />
+                  <textarea rows={2} placeholder="Optional notes to client…" value={notes} onChange={(e) => setNotes(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-900 resize-none" />
                   <div className="flex gap-2">
-                    <button onClick={() => reviewPlan(plan.id, "APPROVED")} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">
-                      Approve
-                    </button>
-                    <button onClick={() => reviewPlan(plan.id, "REJECTED")} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">
-                      Reject
-                    </button>
-                    <button onClick={() => setReviewingId(null)} className="px-4 border-2 border-gray-200 text-gray-600 font-semibold py-2 rounded-xl text-sm hover:border-gray-400 transition-colors">
-                      Cancel
-                    </button>
+                    <button onClick={() => reviewPlan(plan.id, "APPROVED")} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">Approve</button>
+                    <button onClick={() => reviewPlan(plan.id, "REJECTED")} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">Reject</button>
+                    <button onClick={() => setReviewingId(null)} className="px-4 border-2 border-gray-200 text-gray-600 font-semibold py-2 rounded-xl text-sm hover:border-gray-400 transition-colors">Cancel</button>
                   </div>
                 </div>
               ) : (
-                <button
-                  onClick={() => setReviewingId(plan.id)}
-                  className="w-full border-2 border-navy-900 text-navy-900 font-bold py-2.5 rounded-xl text-sm hover:bg-navy-900 hover:text-white transition-colors"
-                >
+                <button onClick={() => { setReviewingId(plan.id); setNotes(""); }}
+                  className="w-full border-2 border-navy-900 text-navy-900 font-bold py-2.5 rounded-xl text-sm hover:bg-navy-900 hover:text-white transition-colors">
                   Review This Plan
                 </button>
               )}
@@ -201,12 +207,28 @@ export default function ApprovalsPage() {
                 {c.accountNumber && <div className="col-span-2"><span className="text-gray-500">Account #</span><p className="font-mono font-semibold">{c.accountNumber}</p></div>}
                 {c.notes && <div className="col-span-2"><span className="text-gray-500">Notes</span><p className="text-xs text-gray-700">{c.notes}</p></div>}
               </div>
-              <a
-                href={`tel:${c.phone}`}
-                className="mt-4 w-full flex items-center justify-center gap-2 bg-navy-900 hover:bg-navy-800 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
-              >
-                Call {c.name.split(" ")[0]} — {FIRM.phone}
-              </a>
+              <div className="mt-4 flex gap-2">
+                <a href={`tel:${c.phone}`}
+                  className="flex-1 flex items-center justify-center bg-navy-900 hover:bg-navy-800 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">
+                  Call {c.name.split(" ")[0]}
+                </a>
+                {reviewingId === c.id ? (
+                  <div className="flex-1 space-y-2">
+                    <textarea rows={2} placeholder="Optional notes…" value={notes} onChange={(e) => setNotes(e.target.value)}
+                      className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-900 resize-none" />
+                    <div className="flex gap-2">
+                      <button onClick={() => reviewConsultation(c.id, "CONFIRMED")} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">Confirm</button>
+                      <button onClick={() => reviewConsultation(c.id, "CANCELLED")} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">Cancel</button>
+                      <button onClick={() => setReviewingId(null)} className="px-3 border-2 border-gray-200 text-gray-600 font-semibold py-2 rounded-xl text-sm hover:border-gray-400 transition-colors">✕</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => { setReviewingId(c.id); setNotes(""); }}
+                    className="flex-1 border-2 border-navy-900 text-navy-900 font-bold py-2.5 rounded-xl text-sm hover:bg-navy-900 hover:text-white transition-colors">
+                    Review
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -225,17 +247,27 @@ export default function ApprovalsPage() {
                 </div>
                 <span className="text-xs text-gray-400">{new Date(d.createdAt).toLocaleDateString()}</span>
               </div>
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between"><span className="text-gray-500">Account #</span><span className="font-mono font-semibold">{d.accountNumber}</span></div>
                 <div className="flex justify-between"><span className="text-gray-500">Reason</span><span className="font-semibold">{d.reason.replace(/_/g, " ")}</span></div>
                 <div><span className="text-gray-500">Description</span><p className="text-gray-700 text-xs mt-1 leading-relaxed">{d.description}</p></div>
               </div>
-              <a
-                href={`tel:${d.phone}`}
-                className="mt-4 w-full flex items-center justify-center bg-navy-900 hover:bg-navy-800 text-white font-bold py-2.5 rounded-xl text-sm transition-colors"
-              >
-                Call to Discuss Dispute
-              </a>
+              {reviewingId === d.id ? (
+                <div className="space-y-3">
+                  <textarea rows={2} placeholder="Optional notes to client…" value={notes} onChange={(e) => setNotes(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-900 resize-none" />
+                  <div className="flex gap-2">
+                    <button onClick={() => reviewDispute(d.id, "APPROVED")} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">Approve</button>
+                    <button onClick={() => reviewDispute(d.id, "REJECTED")} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-xl text-sm transition-colors">Reject</button>
+                    <button onClick={() => setReviewingId(null)} className="px-4 border-2 border-gray-200 text-gray-600 font-semibold py-2 rounded-xl text-sm hover:border-gray-400 transition-colors">Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => { setReviewingId(d.id); setNotes(""); }}
+                  className="w-full border-2 border-navy-900 text-navy-900 font-bold py-2.5 rounded-xl text-sm hover:bg-navy-900 hover:text-white transition-colors">
+                  Review This Dispute
+                </button>
+              )}
             </div>
           ))}
         </div>
