@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-// Prevent multiple Prisma Client instances in development (hot reload)
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 export const db =
@@ -10,3 +9,5 @@ export const db =
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+
+export { db as prisma };
