@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendStatusEmail } from "@/lib/email/send-status-email";
 
 const reviewSchema = z.object({
   consultationId: z.string(),
@@ -24,14 +25,25 @@ export async function POST(req: NextRequest) {
 
   const { consultationId, action, staffNotes } = parsed.data;
 
-  await db.consultationBooking.update({
+  const consultation = await db.consultationBooking.update({
     where: { id: consultationId },
     data: {
       status: action,
       confirmedBy: action === "CONFIRMED" ? (session.user.name || session.user.email) : null,
       staffNotes: staffNotes ?? null,
     },
+    include: { user: { select: { name: true, email: true } } },
   });
+
+  if (consultation.user?.email) {
+    sendStatusEmail({
+      to: consultation.user.email,
+      name: consultation.user.name,
+      status: action,
+      requestType: "consultation",
+      staffNotes: staffNotes,
+    }).catch((err) => console.error("[email] consultations status:", err));
+  }
 
   return NextResponse.json({ message: `Consultation ${action.toLowerCase()}.` });
 }

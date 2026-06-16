@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendStatusEmail } from "@/lib/email/send-status-email";
 
 const reviewSchema = z.object({
   planId: z.string(),
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
       reviewedBy: session.user.name || session.user.email,
       reviewedAt: new Date(),
     },
+    include: { user: { select: { name: true, email: true } } },
   });
 
   if (action === "APPROVED") {
@@ -39,6 +41,16 @@ export async function POST(req: NextRequest) {
       where: { id: plan.debtAccountId },
       data: { status: "IN_PLAN" },
     });
+  }
+
+  if (plan.user?.email) {
+    sendStatusEmail({
+      to: plan.user.email,
+      name: plan.user.name,
+      status: action,
+      requestType: "payment plan",
+      staffNotes: staffNotes,
+    }).catch((err) => console.error("[email] plans status:", err));
   }
 
   return NextResponse.json({ message: `Plan ${action.toLowerCase()}.` });
