@@ -64,16 +64,11 @@
   }
 }
 /* iOS safe area for Capacitor */
-body {
-  padding-top: env(safe-area-inset-top);
+html {
   background-color: #10283B;
+  overscroll-behavior: none;
 }
 
-/* Prevent iOS overscroll bounce showing white */
-html, body {
-  overscroll-behavior: none;
-  background-color: #10283B;
-}
 
 /* iOS Capacitor safe area */
 html {
