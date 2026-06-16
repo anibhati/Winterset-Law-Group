@@ -4,6 +4,22 @@ import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 import { syncDispute } from '@/lib/crm/sync'
 
+export async function GET() {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const isStaff = session.user.role === 'STAFF' || session.user.role === 'ATTORNEY'
+
+  const disputes = await prisma.disputeRequest.findMany({
+    where: isStaff ? { status: 'PENDING' } : { userId: session.user.id },
+    orderBy: { createdAt: 'desc' },
+  })
+
+  return NextResponse.json(disputes)
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -58,7 +74,6 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Fire-and-forget CRM sync
     syncDispute({
       id: dispute.id,
       accountNumber: account.accountNumber,
