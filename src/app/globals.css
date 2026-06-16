@@ -74,3 +74,9 @@ html, body {
   overscroll-behavior: none;
   background-color: #10283B;
 }
+
+/* iOS Capacitor safe area */
+html {
+  background-color: #10283B;
+  overscroll-behavior: none;
+}

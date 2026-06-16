@@ -8,11 +8,6 @@ const config: CapacitorConfig = {
     url: 'https://winterset-law-group.vercel.app',
     cleartext: false,
   },
-  ios: {
-    contentInset: 'always',
-    backgroundColor: '#10283B',
-    scrollEnabled: true,
-  },
 };
 
 export default config;

@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <header className="bg-navy-900 text-white py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40">
+      <header className="bg-navy-900 text-white py-3 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <Link href="/dashboard" className="font-serif font-bold text-white hover:text-gold-400 transition-colors text-sm">
           {FIRM.shortName} Client Portal
         </Link>

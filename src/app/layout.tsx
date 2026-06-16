@@ -16,6 +16,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${merriweather.variable}`}>
       <body className="min-h-screen flex flex-col bg-gray-50">
-        <div className="disclosure-banner" role="banner" aria-label="Debt collection disclosure">
+        <div className="disclosure-banner" style={{ paddingTop: "env(safe-area-inset-top)" }} role="banner" aria-label="Debt collection disclosure">
           {DISCLOSURES.debtCollection}
         </div>
         <Providers>{children}</Providers>
