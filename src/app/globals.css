@@ -63,3 +63,8 @@
     @apply bg-navy-900 py-2 px-4 text-center text-xs text-white/80;
   }
 }
+/* iOS safe area for Capacitor */
+body {
+  padding-top: env(safe-area-inset-top);
+  background-color: #10283B;
+}
