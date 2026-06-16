@@ -92,6 +92,7 @@ model ConsultationBooking {
   notes         String?
   status        BookingStatus     @default(PENDING)
   confirmedBy   String?
+  staffNotes    String?
   crmRecordId   String?
   crmSyncedAt   DateTime?
   createdAt     DateTime          @default(now())
