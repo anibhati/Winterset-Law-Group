@@ -68,3 +68,9 @@ body {
   padding-top: env(safe-area-inset-top);
   background-color: #10283B;
 }
+
+/* Prevent iOS overscroll bounce showing white */
+html, body {
+  overscroll-behavior: none;
+  background-color: #10283B;
+}
