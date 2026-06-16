@@ -8,6 +8,7 @@ import BottomNav from "@/components/dashboard/BottomNav";
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
+  if (session.user.role === "STAFF" || session.user.role === "ATTORNEY") redirect("/staff");
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
