@@ -141,7 +141,7 @@ export default function ApprovalsPage() {
           </button>
         ))}
       </div>
-
+      {loading && <ApprovalsSkeleton />}
       {loading {loading && <p className="text-gray-400 text-sm">Loading…</p>}{loading && <p className="text-gray-400 text-sm">Loading…</p>} <ApprovalsSkeleton />}
 
       {/* Payment Plans */}
