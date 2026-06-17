@@ -32,16 +32,26 @@ export async function POST(req: NextRequest) {
       confirmedBy: action === "CONFIRMED" ? (session.user.name || session.user.email) : null,
       staffNotes: staffNotes ?? null,
     },
-    include: { user: { select: { name: true, email: true } } },
+    include: { user: { select: { id: true, name: true, email: true } } },
   });
 
-  if (consultation.user?.email) {
+  if (consultation.user) {
+    await db.notification.create({
+      data: {
+        userId: consultation.user.id,
+        title: action === "CONFIRMED" ? "Consultation Confirmed" : "Consultation Cancelled",
+        body: action === "CONFIRMED"
+          ? "Your consultation has been confirmed." + (staffNotes ? ` Note: ${staffNotes}` : "")
+          : "Your consultation has been cancelled." + (staffNotes ? ` Note: ${staffNotes}` : ""),
+      },
+    });
+
     sendStatusEmail({
       to: consultation.user.email,
       name: consultation.user.name,
       status: action,
       requestType: "consultation",
-      staffNotes: staffNotes,
+      staffNotes,
     }).catch((err) => console.error("[email] consultations status:", err));
   }
 

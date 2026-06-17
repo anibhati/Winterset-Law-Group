@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       reviewedBy: session.user.name || session.user.email,
       reviewedAt: new Date(),
     },
-    include: { user: { select: { name: true, email: true } } },
+    include: { user: { select: { id: true, name: true, email: true } } },
   });
 
   if (action === "APPROVED") {
@@ -43,13 +43,23 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  if (plan.user?.email) {
+  if (plan.user) {
+    await db.notification.create({
+      data: {
+        userId: plan.user.id,
+        title: action === "APPROVED" ? "Payment Plan Approved" : "Payment Plan Update",
+        body: action === "APPROVED"
+          ? "Your payment plan has been approved." + (staffNotes ? ` Note: ${staffNotes}` : "")
+          : "Your payment plan was not approved at this time." + (staffNotes ? ` Note: ${staffNotes}` : ""),
+      },
+    });
+
     sendStatusEmail({
       to: plan.user.email,
       name: plan.user.name,
       status: action,
       requestType: "payment plan",
-      staffNotes: staffNotes,
+      staffNotes,
     }).catch((err) => console.error("[email] plans status:", err));
   }
 

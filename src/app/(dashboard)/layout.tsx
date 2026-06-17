@@ -1,9 +1,11 @@
+export const dynamic = "force-dynamic";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { FIRM } from "@/lib/constants";
 import BottomNav from "@/components/dashboard/BottomNav";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -16,7 +18,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <Link href="/dashboard" className="font-serif font-bold text-white hover:text-gold-400 transition-colors text-sm">
           {FIRM.shortName} Client Portal
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <NotificationBell />
           <span className="text-white/60 text-xs hidden sm:block">
             {session.user.name || session.user.email}
           </span>
@@ -27,11 +30,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </form>
         </div>
       </header>
-
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-28">
         {children}
       </main>
-
       <BottomNav />
     </div>
   );

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendStatusEmail } from "@/lib/email/send-status-email";
 
 const reviewSchema = z.object({
   disputeId: z.string(),
@@ -24,13 +25,31 @@ export async function POST(req: NextRequest) {
 
   const { disputeId, action, staffNotes } = parsed.data;
 
-  await db.disputeRequest.update({
+  const dispute = await db.disputeRequest.update({
     where: { id: disputeId },
-    data: {
-      status: action,
-      staffNotes: staffNotes ?? null,
-    },
+    data: { status: action, staffNotes: staffNotes ?? null },
+    include: { user: { select: { id: true, name: true, email: true } } },
   });
+
+  if (dispute.user) {
+    await db.notification.create({
+      data: {
+        userId: dispute.user.id,
+        title: action === "APPROVED" ? "Dispute Approved" : "Dispute Update",
+        body: action === "APPROVED"
+          ? "Your dispute has been approved." + (staffNotes ? ` Note: ${staffNotes}` : "")
+          : "Your dispute was not approved at this time." + (staffNotes ? ` Note: ${staffNotes}` : ""),
+      },
+    });
+
+    sendStatusEmail({
+      to: dispute.user.email,
+      name: dispute.user.name,
+      status: action,
+      requestType: "dispute",
+      staffNotes,
+    }).catch((err) => console.error("[email] disputes status:", err));
+  }
 
   return NextResponse.json({ message: `Dispute ${action.toLowerCase()}.` });
 }
