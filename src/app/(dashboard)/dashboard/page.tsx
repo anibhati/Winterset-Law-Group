@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { getServerSession } from "next-auth";
+import { PageTransition } from "@/components/ui/PageTransition";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
@@ -47,7 +48,8 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <PageTransition>
+<PageTransition><div className="space-y-5">
       <div>
         <h1 className="text-2xl font-serif font-bold text-navy-900">
           Welcome back{session.user.name ? `, ${session.user.name.split(" ")[0]}` : ""}
@@ -166,5 +168,6 @@ export default async function DashboardPage() {
         </a>
       </div>
     </div>
+    </PageTransition>
   );
 }

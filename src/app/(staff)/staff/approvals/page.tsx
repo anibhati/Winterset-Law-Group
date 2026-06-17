@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { ApprovalsSkeleton } from "@/components/ui/Skeleton";
 import { FIRM, DEBT_TYPE_LABELS } from "@/lib/constants";
 
 interface Plan {
@@ -141,7 +142,7 @@ export default function ApprovalsPage() {
         ))}
       </div>
 
-      {loading && <p className="text-gray-400 text-sm">Loading…</p>}
+      {loading {loading && <p className="text-gray-400 text-sm">Loading…</p>}{loading && <p className="text-gray-400 text-sm">Loading…</p>} <ApprovalsSkeleton />}
 
       {/* Payment Plans */}
       {activeTab === "plans" && !loading && (
