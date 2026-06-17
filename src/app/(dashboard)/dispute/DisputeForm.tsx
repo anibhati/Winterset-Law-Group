@@ -39,7 +39,7 @@ export default function DisputeForm() {
         return;
       }
       toast.success("Dispute filed. We will respond within three to five business days.");
-      router.push("/dashboard");
+      router.push("/dispute/success");
       router.refresh();
     } catch {
       toast.error("Network error. Please try again.");
