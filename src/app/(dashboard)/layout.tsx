@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { FIRM } from "@/lib/constants";
 import BottomNav from "@/components/dashboard/BottomNav";
 import NotificationBell from "@/components/dashboard/NotificationBell";
+import SignOutButton from "@/components/dashboard/SignOutButton";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -23,11 +24,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <span className="text-white/60 text-xs hidden sm:block">
             {session.user.name || session.user.email}
           </span>
-          <form action="/api/auth/signout" method="POST">
-            <button className="text-white/60 hover:text-white text-xs transition-colors">
-              Sign Out
-            </button>
-          </form>
+          <SignOutButton />
         </div>
       </header>
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 pb-28">
