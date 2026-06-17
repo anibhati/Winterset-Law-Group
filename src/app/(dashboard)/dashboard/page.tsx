@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 import { getServerSession } from "next-auth";
-import { PageTransition } from "@/components/ui/PageTransition";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
@@ -10,6 +9,7 @@ import { FIRM, DEBT_TYPE_LABELS } from "@/lib/constants";
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
+  if (session.user.role === "STAFF" || session.user.role === "ATTORNEY") redirect("/staff");
 
   let account = null;
   let planRequest = null;
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
     });
   } catch {
-    // DB not connected yet — show empty state
+    // DB not connected yet
   }
 
   const statusColors: Record<string, string> = {
@@ -48,8 +48,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <PageTransition>
-<PageTransition><div className="space-y-5">
+    <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-serif font-bold text-navy-900">
           Welcome back{session.user.name ? `, ${session.user.name.split(" ")[0]}` : ""}
@@ -168,6 +167,5 @@ export default async function DashboardPage() {
         </a>
       </div>
     </div>
-    </PageTransition>
   );
 }
