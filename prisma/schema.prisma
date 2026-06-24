@@ -26,6 +26,7 @@ model User {
   threads             MessageThread[]
   notifications       Notification[]
   passwordResetTokens PasswordResetToken[]
+  staffInvitesCreated  StaffInviteToken[]  @relation("StaffInviteCreatedBy")
   planRequests        PaymentPlanRequest[]
 }
 
@@ -251,4 +252,15 @@ enum BookingStatus {
 enum ThreadStatus {
   OPEN
   CLOSED
+}
+
+model StaffInviteToken {
+  id        String    @id @default(cuid())
+  email     String
+  role      Role
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdBy String
+  createdAt DateTime  @default(now())
 }
