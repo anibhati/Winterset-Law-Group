@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
 
   await db.staffInviteToken.create({
-    data: { email: email.toLowerCase(), role, token, expiresAt, createdBy: session.user.id },
+    data: { email: email.toLowerCase(), role, token, expiresAt, createdById: session.user.id },
   });
 
   try {

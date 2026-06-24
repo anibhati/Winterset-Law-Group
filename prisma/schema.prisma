@@ -255,12 +255,13 @@ enum ThreadStatus {
 }
 
 model StaffInviteToken {
-  id        String    @id @default(cuid())
-  email     String
-  role      Role
-  token     String    @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-  createdBy String
-  createdAt DateTime  @default(now())
+  id          String    @id @default(cuid())
+  email       String
+  role        Role
+  token       String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdById String
+  createdBy   User      @relation("StaffInviteCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
 }
