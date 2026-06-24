@@ -12,6 +12,8 @@ model User {
   id                  String                @id @default(cuid())
   email               String                @unique
   phone               String?
+  smsConsent          Boolean               @default(false) // ⚠️ TCPA Compliance Flag
+  stripeCustomerId    String?               @unique        // Optional: easily maps Stripe invoices
   name                String
   password            String
   role                Role                  @default(CLIENT)
@@ -60,6 +62,7 @@ model PaymentPlanRequest {
   createdAt         DateTime      @default(now())
   debtAccount       DebtAccount   @relation(fields: [debtAccountId], references: [id])
   user              User?         @relation(fields: [userId], references: [id])
+  payments            Payment[]
 }
 
 model DisputeRequest {
@@ -159,6 +162,31 @@ model Notification {
   user      User      @relation(fields: [userId], references: [id])
 
   @@index([userId])
+}
+
+enum PaymentStatus {
+  PAID
+  MISSED
+  PARTIAL
+}
+
+
+model Payment {
+  id                  String              @id @default(cuid())
+  paymentPlanRequestId String
+  installmentNumber   Int
+  dueDate             DateTime
+  amount              Float
+  status              PaymentStatus       @default(PAID)
+  paidAt              DateTime?
+  recordedBy          String              // staff user id who logged this
+  notes               String?
+  createdAt           DateTime            @default(now())
+
+  paymentPlanRequest  PaymentPlanRequest  @relation(fields: [paymentPlanRequestId], references: [id], onDelete: Cascade)
+
+  @@index([paymentPlanRequestId])
+  @@unique([paymentPlanRequestId, installmentNumber])
 }
 
 enum Role {
