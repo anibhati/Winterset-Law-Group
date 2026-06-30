@@ -29,6 +29,7 @@
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "framer-motion": "^12.40.0",
+    "jsonwebtoken": "^9.0.3",
     "next": "^15.5.16",
     "next-auth": "^4.24.10",
     "nodemailer": "^7.0.7",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.16",
     "@types/qrcode": "^1.5.5",
