@@ -3,9 +3,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+
+// The token itself is 32 random bytes (infeasible to brute-force), so this
+// limit is just cheap defense-in-depth against scripted abuse, not a
+// security-critical control like the other rate limits in this app.
+const LIMIT = 20;
+const WINDOW_MS = 60 * 60 * 1000;
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const rl = await checkRateLimit(`reset-password:${ip}`, LIMIT, WINDOW_MS);
+    if (!rl.success) return rateLimitResponse(rl);
+
     const { token, password } = await req.json();
 
     if (!token || !password) {

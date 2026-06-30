@@ -55,23 +55,29 @@ export default function StaffMessagesPage() {
   const [notifSending, setNotifSending] = useState(false);
   const [notifSuccess, setNotifSuccess] = useState(false);
 
+  const fetchClients = useCallback(async () => {
+    try {
+      const res = await fetch("/api/staff/clients?pageSize=100");
+      if (res.ok) {
+        const data = await res.json();
+        setClients(data.clients ?? []);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   const fetchThreads = useCallback(async () => {
     try {
-      const res = await fetch("/api/messages/threads");
-      if (res.ok) setThreads(await res.json());
+      const res = await fetch("/api/messages/threads?pageSize=100");
+      if (res.ok) {
+        const data = await res.json();
+        setThreads(data.threads ?? []);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
-    }
-  }, []);
-
-  const fetchClients = useCallback(async () => {
-    try {
-      const res = await fetch("/api/staff/clients");
-      if (res.ok) setClients(await res.json());
-    } catch (err) {
-      console.error(err);
     }
   }, []);
 

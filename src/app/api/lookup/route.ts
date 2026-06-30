@@ -2,9 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
+import { checkRateLimit, getClientIp, rateLimitResponse } from '@/lib/rate-limit'
+
+// 10 attempts per 10 minutes per IP. This endpoint takes a 4-digit SSN
+// suffix as one of its inputs (10,000 possible values) — without a tight
+// limit here it's brute-forceable against a known account number/last name.
+const LOOKUP_LIMIT = 10;
+const LOOKUP_WINDOW_MS = 10 * 60 * 1000;
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit(`lookup:${ip}`, LOOKUP_LIMIT, LOOKUP_WINDOW_MS);
+    if (!rl.success) return rateLimitResponse(rl);
+
     const body = await request.json()
     const { accountNumber, lastName, last4Ssn } = body
 

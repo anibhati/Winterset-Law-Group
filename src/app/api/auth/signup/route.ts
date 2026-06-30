@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { db } from "@/lib/db";
+import { prisma as db } from "@/lib/prisma";
+import { checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+
+// 5 account creations per hour per IP — generous for a real person,
+// blocks scripted mass account creation.
+const SIGNUP_LIMIT = 5;
+const SIGNUP_WINDOW_MS = 60 * 60 * 1000;
 
 const schema = z.object({
   name: z.string().min(2).max(100),
@@ -11,6 +17,10 @@ const schema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`signup:${ip}`, SIGNUP_LIMIT, SIGNUP_WINDOW_MS);
+  if (!rl.success) return rateLimitResponse(rl);
+
   let body: unknown;
   try {
     body = await req.json();

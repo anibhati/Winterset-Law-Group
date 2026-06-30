@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { prisma as db } from "@/lib/prisma";
 import { sendStatusEmail } from "@/lib/email/send-status-email";
 
 const reviewSchema = z.object({
@@ -42,13 +42,15 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    sendStatusEmail({
-      to: dispute.user.email,
-      name: dispute.user.name,
-      status: action,
-      requestType: "dispute",
-      staffNotes,
-    }).catch((err) => console.error("[email] disputes status:", err));
+    after(() =>
+      sendStatusEmail({
+        to: dispute.user!.email,
+        name: dispute.user!.name,
+        status: action,
+        requestType: "dispute",
+        staffNotes,
+      }).catch((err) => console.error("[email] disputes status:", err))
+    );
   }
 
   return NextResponse.json({ message: `Dispute ${action.toLowerCase()}.` });

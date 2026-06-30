@@ -14,12 +14,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { role: true },
-  });
-
-  if (user?.role === "CLIENT") {
+  // Role is already on the JWT/session — no need to re-hit the DB for it.
+  if (session.user.role === "CLIENT") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

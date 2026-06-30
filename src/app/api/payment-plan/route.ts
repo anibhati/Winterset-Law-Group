@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
@@ -68,14 +68,19 @@ export async function POST(request: NextRequest) {
         startDate: start,
       },
     })
-    syncPaymentPlan({
-      id: plan.id,
-      accountNumber: account.accountNumber,
-      debtorName: account.debtorName,
-      frequency,
-      installmentAmount: amount,
-      startDate: start,
-    })
+    // Wrapped in after() so Vercel keeps this function alive long enough
+    // for the CRM sync to finish, instead of freezing the runtime the
+    // moment the response below is sent.
+    after(() =>
+      syncPaymentPlan({
+        id: plan.id,
+        accountNumber: account.accountNumber,
+        debtorName: account.debtorName,
+        frequency,
+        installmentAmount: amount,
+        startDate: start,
+      })
+    )
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Payment plan submission error:', error)

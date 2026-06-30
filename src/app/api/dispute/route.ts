@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
@@ -74,15 +74,20 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    syncDispute({
-      id: dispute.id,
-      accountNumber: account.accountNumber,
-      name: user?.name ?? '',
-      email: user?.email ?? '',
-      phone: user?.phone ?? '',
-      reason,
-      description: description.trim(),
-    })
+    // Wrapped in after() so Vercel keeps this function alive long enough
+    // for the CRM sync to finish, instead of freezing the runtime the
+    // moment the response below is sent.
+    after(() =>
+      syncDispute({
+        id: dispute.id,
+        accountNumber: account.accountNumber,
+        name: user?.name ?? '',
+        email: user?.email ?? '',
+        phone: user?.phone ?? '',
+        reason,
+        description: description.trim(),
+      })
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {

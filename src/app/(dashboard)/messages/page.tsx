@@ -64,7 +64,10 @@ export default function MessagesPage() {
   async function fetchThreads() {
     try {
       const res = await fetch("/api/messages/threads");
-      if (res.ok) setThreads(await res.json());
+      if (res.ok) {
+        const data = await res.json();
+        setThreads(data.threads ?? []);
+      }
     } catch (err) {
       console.error(err);
     } finally {

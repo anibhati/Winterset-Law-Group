@@ -36,13 +36,9 @@ export async function GET(
       return NextResponse.json({ error: "Thread not found" }, { status: 404 });
     }
 
-    // Clients can only see their own threads
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    if (user?.role === "CLIENT" && thread.userId !== session.user.id) {
+    // Clients can only see their own threads. Role is already on the
+    // JWT/session — no need to re-hit the DB for it.
+    if (session.user.role === "CLIENT" && thread.userId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -93,12 +89,8 @@ export async function POST(
       return NextResponse.json({ error: "Thread not found" }, { status: 404 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { role: true },
-    });
-
-    if (user?.role === "CLIENT" && thread.userId !== session.user.id) {
+    // Role is already on the JWT/session — no need to re-hit the DB for it.
+    if (session.user.role === "CLIENT" && thread.userId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
