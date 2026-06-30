@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { prisma as db } from "@/lib/prisma";
 import { FIRM, DEBT_TYPE_LABELS } from "@/lib/constants";
 import PaymentPlanForm from "./PaymentPlanForm";
 

@@ -57,7 +57,6 @@ export default function PrivacyPage() {
         <ul>
           <li>The Ohio Attorney General&apos;s Office (as required under ORC § 109.08)</li>
           <li>State agencies that certified your debt for collection</li>
-          <li>Payment processors (e.g., Stripe) under PCI-DSS compliance</li>
           <li>SMS service providers (e.g., Twilio) for consented communications</li>
           <li>Legal authorities when required by law or court order</li>
         </ul>
