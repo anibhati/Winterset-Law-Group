@@ -4,13 +4,11 @@ import {
   ActivityIndicator, KeyboardAvoidingView, Platform,
   StyleSheet, SafeAreaView,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../api/client";
 
 export default function LoginScreen() {
   const { login } = useAuth();
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,12 +19,9 @@ export default function LoginScreen() {
     if (!email || !password) { setError("Please enter your email and password."); return; }
     setSubmitting(true);
     try {
-      console.log("[login] attempting login for", email.trim());
       await login(email.trim(), password);
-      console.log("[login] success, navigating to dashboard");
-      router.replace("/dashboard");
+      // Navigation handled automatically by AuthContext
     } catch (err) {
-      console.log("[login] error:", err);
       setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
@@ -63,9 +58,7 @@ export default function LoginScreen() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <TouchableOpacity onPress={handleSubmit} disabled={submitting} style={styles.button}>
-            {submitting
-              ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.buttonText}>Sign In</Text>}
+            {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
