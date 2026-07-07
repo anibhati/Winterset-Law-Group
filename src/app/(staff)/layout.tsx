@@ -19,6 +19,9 @@ export default async function StaffLayout({ children }: { children: React.ReactN
           <Link href="/staff" className="text-white/60 hover:text-white text-xs transition-colors">Dashboard</Link>
           <Link href="/staff/approvals" className="text-white/60 hover:text-white text-xs transition-colors">Approvals</Link>
           <Link href="/staff/messages" className="text-white/60 hover:text-white text-xs transition-colors">Messages</Link>
+          {session.user.role === "ATTORNEY" && (
+            <Link href="/staff/invite" className="text-white/60 hover:text-white text-xs transition-colors">Invite Staff</Link>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <span className="text-gold-400 text-xs font-semibold uppercase">{session.user.role}</span>
