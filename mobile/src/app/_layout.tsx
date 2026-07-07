@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs } from "expo-router";
+import { Tabs, Slot } from "expo-router";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import Svg, { Path, Circle, Line, Rect, Polyline } from "react-native-svg";
@@ -20,7 +20,7 @@ function AccountIcon({ active }: { active: boolean }) {
 }
 
 function RootNavigator() {
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -30,6 +30,12 @@ function RootNavigator() {
     );
   }
 
+  // Not logged in — just render whatever route is active (will be /login via index.tsx redirect)
+  if (!user) {
+    return <Slot />;
+  }
+
+  // Logged in — render the tab navigator
   return (
     <Tabs
       screenOptions={{
@@ -68,5 +74,5 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  loading: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#f9fafb" },
+  loading: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: NAVY },
 });

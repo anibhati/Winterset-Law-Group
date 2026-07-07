@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
-  const { frequency, installmentAmount } = body;
+  const { frequency, installmentAmount, startDate } = body;
 
   if (!frequency || !installmentAmount || installmentAmount <= 0) {
     return NextResponse.json({ error: "Frequency and a valid amount are required." }, { status: 400 });
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       debtAccountId: account.id,
       frequency,
       installmentAmount: parseFloat(installmentAmount),
+      startDate: startDate ? new Date(startDate) : new Date(),
       status: "PENDING",
     },
   });
