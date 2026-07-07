@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyMobileToken } from "@/lib/mobile-auth";
+import { getAuthedUser } from "@/lib/mobile-auth";
 import { prisma as db } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
-  const user = await verifyMobileToken(req);
+  const user = await getAuthedUser(req);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json();
