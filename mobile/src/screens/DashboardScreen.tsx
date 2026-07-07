@@ -3,7 +3,7 @@ import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, ActivityIndicator, RefreshControl, Linking,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 import { apiFetch, ApiError } from "../api/client";
 
@@ -88,7 +88,7 @@ export default function DashboardScreen() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   function onRefresh() {
     setRefreshing(true);

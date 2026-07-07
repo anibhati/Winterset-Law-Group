@@ -1,17 +1,21 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "WLG Client Portal",
+    "slug": "wlg-client-portal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "scheme": "wlgportal",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#10283B",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.wintersetlawgroup.client"
     },
     "android": {
+      "package": "com.wintersetlawgroup.client",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#10283B",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -23,7 +27,22 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-router"
-    ]
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#10283B"
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "05adad2a-b300-4ba2-b5ff-502bb9df85f7"
+      }
+    }
   }
 }
