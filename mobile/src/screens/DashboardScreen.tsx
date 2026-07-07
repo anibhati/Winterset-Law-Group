@@ -3,6 +3,7 @@ import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, ActivityIndicator, RefreshControl, Linking,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 import { apiFetch, ApiError } from "../api/client";
 
@@ -68,6 +69,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -125,7 +127,10 @@ export default function DashboardScreen() {
       {/* No account */}
       {!account && !error && (
         <View style={styles.emptyCard}>
-          <Text style={styles.emptyText}>No account linked yet. Contact us to get started.</Text>
+          <Text style={styles.emptyText}>No account linked yet. Find your account to get started.</Text>
+          <TouchableOpacity style={styles.emptyBtn} onPress={() => router.push("/link-account")}>
+            <Text style={styles.emptyBtnText}>Get Started</Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -138,7 +143,7 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.row}><Text style={styles.rowLabel}>Account #</Text><Text style={styles.rowValue}>{account.accountNumber}</Text></View>
           <View style={styles.row}><Text style={styles.rowLabel}>Type</Text><Text style={styles.rowValue}>{account.debtType.replace(/_/g, " ")}</Text></View>
-          <View style={styles.row}><Text style={styles.rowLabel}>Agency</Text><Text style={[styles.rowValue, { maxWidth: "60%" }]} numberOfLines={2}>{account.agency}</Text></View>
+          <View style={styles.row}><Text style={[styles.rowLabel]}>Agency</Text><Text style={[styles.rowValue, { maxWidth: "60%" }]} numberOfLines={2}>{account.agency}</Text></View>
           <View style={[styles.row, styles.rowBorderTop]}>
             <Text style={styles.rowLabel}>Balance Due</Text>
             <Text style={styles.balance}>${account.currentBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}</Text>
@@ -198,15 +203,24 @@ export default function DashboardScreen() {
 
       {/* Action buttons */}
       <View style={styles.actionRow}>
-        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: NAVY }]}>
+        <TouchableOpacity
+          style={[styles.actionBtn, { backgroundColor: NAVY }]}
+          onPress={() => router.push(account ? "/payment" : "/link-account")}
+        >
           <Text style={styles.actionBtnTitle}>Set Up Plan</Text>
           <Text style={styles.actionBtnSub}>Start a new request</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: BRONZE }]}>
+        <TouchableOpacity
+          style={[styles.actionBtn, { backgroundColor: BRONZE }]}
+          onPress={() => Linking.openURL("tel:6144531200")}
+        >
           <Text style={styles.actionBtnTitle}>Talk to Us</Text>
           <Text style={styles.actionBtnSub}>Schedule a call</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: "#b91c1c" }]}>
+        <TouchableOpacity
+          style={[styles.actionBtn, { backgroundColor: "#b91c1c" }]}
+          onPress={() => router.push(account ? "/dispute" : "/link-account")}
+        >
           <Text style={styles.actionBtnTitle}>File Dispute</Text>
           <Text style={styles.actionBtnSub}>Contest your debt</Text>
         </TouchableOpacity>
@@ -249,7 +263,9 @@ const styles = StyleSheet.create({
   noteCard: { backgroundColor: "#eff6ff", borderRadius: 10, padding: 10, marginTop: 8 },
   noteText: { fontSize: 12, color: "#1e40af" },
   emptyCard: { backgroundColor: "#fff", borderRadius: 16, borderWidth: 2, borderStyle: "dashed", borderColor: "#e5e7eb", padding: 32, alignItems: "center", marginBottom: 12 },
-  emptyText: { color: "#9ca3af", fontSize: 14, textAlign: "center" },
+  emptyText: { color: "#9ca3af", fontSize: 14, textAlign: "center", marginBottom: 16 },
+  emptyBtn: { backgroundColor: NAVY, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
+  emptyBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
   errorCard: { backgroundColor: "#fee2e2", borderRadius: 12, padding: 12, marginBottom: 12 },
   errorText: { color: "#991b1b", fontSize: 13 },
   actionRow: { flexDirection: "row", gap: 8, marginBottom: 12 },

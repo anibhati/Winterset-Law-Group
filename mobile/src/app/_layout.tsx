@@ -61,6 +61,7 @@ function RootNavigator() {
       <Tabs.Screen name="account" options={{ tabBarLabel: "Account", tabBarIcon: ({ focused }) => <AccountIcon active={focused} /> }} />
       <Tabs.Screen name="index" options={{ href: null, headerShown: false }} />
       <Tabs.Screen name="login" options={{ href: null, headerShown: false }} />
+      <Tabs.Screen name="link-account" options={{ href: null, headerTitle: "Link Account" }} />
     </Tabs>
   );
 }
