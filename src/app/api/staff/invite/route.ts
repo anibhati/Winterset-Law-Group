@@ -7,7 +7,7 @@ import { sendStaffInviteEmail } from "@/lib/email/send-staff-invite-email";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ATTORNEY") {
+  if (!session || session.user.role !== "STAFF" && session.user.role !== "ATTORNEY") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 

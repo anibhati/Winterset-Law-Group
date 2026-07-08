@@ -4,7 +4,6 @@ import { useState } from "react";
 
 export default function InviteStaffPage() {
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("STAFF");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -19,7 +18,7 @@ export default function InviteStaffPage() {
       const res = await fetch("/api/staff/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), role }),
+        body: JSON.stringify({ email: email.trim(), role: "STAFF" }),
       });
       const data = await res.json();
 
@@ -60,18 +59,6 @@ export default function InviteStaffPage() {
             placeholder="colleague@wintersetlawgroup.com"
             className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-navy-900"
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-navy-900 bg-white"
-          >
-            <option value="STAFF">Staff</option>
-            <option value="ATTORNEY">Attorney</option>
-          </select>
         </div>
 
         {message && (
