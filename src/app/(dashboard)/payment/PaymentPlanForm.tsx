@@ -35,7 +35,7 @@ export default function PaymentPlanForm({ currentBalance }: { currentBalance: nu
         return;
       }
       toast.success("Payment plan submitted. Our team will review within 1-2 business days.");
-      router.push("/payment/success");
+      router.push("/dashboard");
       router.refresh();
     } catch {
       toast.error("Network error. Please try again.");
