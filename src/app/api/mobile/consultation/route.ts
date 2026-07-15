@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getMobileUser } from "@/lib/mobile-auth";
+import { getAuthedUser } from "@/lib/mobile-auth";
 import { syncConsultation } from "@/lib/crm/sync";
 
 const schema = z.object({
@@ -16,25 +16,13 @@ const schema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
-    const mobileUser = await getMobileUser(req);
-    if (!mobileUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const user = await getAuthedUser(req);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const existing = await prisma.consultationBooking.findFirst({
-      where: {
-        userId: mobileUser.id,
-        status: { in: ["PENDING", "CONFIRMED"] },
-      },
+      where: { userId: user.id, status: { in: ["PENDING", "CONFIRMED"] } },
       orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        topic: true,
-        preferredDate: true,
-        timeSlot: true,
-        status: true,
-        createdAt: true,
-      },
+      select: { id: true, topic: true, preferredDate: true, timeSlot: true, status: true, createdAt: true },
     });
 
     return NextResponse.json({ consultation: existing ?? null });
@@ -46,10 +34,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const mobileUser = await getMobileUser(req);
-    if (!mobileUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const user = await getAuthedUser(req);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     let body: unknown;
     try { body = await req.json(); } catch {
@@ -63,17 +49,17 @@ export async function POST(req: NextRequest) {
 
     const { phone, topic, preferredDate, timeSlot, notes } = parsed.data;
 
-    const debtAccount = await prisma.debtAccount.findFirst({
-      where: { userId: mobileUser.id },
-      select: { accountNumber: true },
-    });
+    const [debtAccount, dbUser] = await Promise.all([
+      prisma.debtAccount.findFirst({ where: { userId: user.id }, select: { accountNumber: true } }),
+      prisma.user.findUnique({ where: { id: user.id }, select: { name: true } }),
+    ]);
 
     const booking = await prisma.consultationBooking.create({
       data: {
-        userId: mobileUser.id,
-        name: mobileUser.name,
+        userId: user.id,
+        name: dbUser?.name ?? "Client",
         phone,
-        email: mobileUser.email,
+        email: user.email,
         topic,
         accountNumber: debtAccount?.accountNumber ?? null,
         preferredDate: new Date(preferredDate),
@@ -85,8 +71,8 @@ export async function POST(req: NextRequest) {
     after(() =>
       syncConsultation({
         id: booking.id,
-        name: mobileUser.name,
-        email: mobileUser.email,
+        name: dbUser?.name ?? "Client",
+        email: user.email,
         phone,
         topic,
         accountNumber: debtAccount?.accountNumber ?? null,

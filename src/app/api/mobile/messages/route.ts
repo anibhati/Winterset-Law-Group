@@ -2,27 +2,20 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getMobileUser } from "@/lib/mobile-auth";
+import { getAuthedUser } from "@/lib/mobile-auth";
 
 export async function GET(req: NextRequest) {
   try {
-    const mobileUser = await getMobileUser(req);
-    if (!mobileUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const user = await getAuthedUser(req);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const threads = await prisma.messageThread.findMany({
-      where: { userId: mobileUser.id },
+      where: { userId: user.id },
       include: {
         messages: {
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: {
-            content: true,
-            createdAt: true,
-            senderId: true,
-            readAt: true,
-          },
+          select: { content: true, createdAt: true, senderId: true, readAt: true },
         },
       },
       orderBy: { updatedAt: "desc" },
@@ -30,8 +23,7 @@ export async function GET(req: NextRequest) {
 
     const threadsWithUnread = threads.map((t) => {
       const lastMsg = t.messages[0];
-      const hasUnread =
-        lastMsg && !lastMsg.readAt && lastMsg.senderId !== mobileUser.id;
+      const hasUnread = lastMsg && !lastMsg.readAt && lastMsg.senderId !== user.id;
       return { ...t, hasUnread };
     });
 
@@ -44,35 +36,27 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const mobileUser = await getMobileUser(req);
-    if (!mobileUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const user = await getAuthedUser(req);
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { subject, message } = await req.json();
 
     if (!subject?.trim() || !message?.trim()) {
-      return NextResponse.json(
-        { error: "Subject and message are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Subject and message are required" }, { status: 400 });
     }
 
     const debtAccount = await prisma.debtAccount.findFirst({
-      where: { userId: mobileUser.id },
+      where: { userId: user.id },
       select: { id: true },
     });
 
     const thread = await prisma.messageThread.create({
       data: {
-        userId: mobileUser.id,
+        userId: user.id,
         subject: subject.trim(),
         debtAccountId: debtAccount?.id ?? null,
         messages: {
-          create: {
-            senderId: mobileUser.id,
-            content: message.trim(),
-          },
+          create: { senderId: user.id, content: message.trim() },
         },
       },
       include: { messages: true },
