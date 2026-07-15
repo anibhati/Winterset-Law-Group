@@ -12,7 +12,7 @@ export default function Index() {
       </View>
     );
   }
-  return <Redirect href={user ? "/dashboard" : "/login"} />;
+  return <Redirect href={user ? "/dashboard" : "/(auth)/login"} />;
 }
 
 const styles = StyleSheet.create({

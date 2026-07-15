@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs, Slot } from "expo-router";
+import { Tabs, Slot, useRouter, useSegments } from "expo-router";
 import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import Svg, { Path, Circle, Line, Rect, Polyline } from "react-native-svg";
@@ -22,8 +22,11 @@ function AccountIcon({ active }: { active: boolean }) {
   return <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={active ? NAVY : "#9ca3af"} strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round"><Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><Circle cx="12" cy="7" r="4" /></Svg>;
 }
 
+const AUTH_SCREENS = ["login", "signup", "forgot-password"];
+
 function RootNavigator() {
   const { user, loading } = useAuth();
+  const segments = useSegments();
 
   if (loading) {
     return (
@@ -33,10 +36,15 @@ function RootNavigator() {
     );
   }
 
-  if (!user) {
+  const currentScreen = segments[segments.length - 1];
+  const isAuthScreen = AUTH_SCREENS.includes(currentScreen);
+
+  // Not logged in — render auth screens via Slot
+  if (!user || isAuthScreen && !user) {
     return <Slot />;
   }
 
+  // Logged in — render tab navigator
   return (
     <Tabs
       screenOptions={{
@@ -62,9 +70,12 @@ function RootNavigator() {
       <Tabs.Screen name="messages" options={{ tabBarLabel: "Messages", tabBarIcon: ({ focused }) => <MessagesIcon active={focused} /> }} />
       <Tabs.Screen name="account" options={{ tabBarLabel: "Account", tabBarIcon: ({ focused }) => <AccountIcon active={focused} /> }} />
       <Tabs.Screen name="index" options={{ href: null, headerShown: false }} />
-      <Tabs.Screen name="login" options={{ href: null, headerShown: false }} />
+      
+      
+      
       <Tabs.Screen name="link-account" options={{ href: null, headerTitle: "Link Account" }} />
       <Tabs.Screen name="consultation" options={{ href: null, headerTitle: "Schedule a Call" }} />
+      <Tabs.Screen name="(auth)" options={{ href: null }} />
     </Tabs>
   );
 }

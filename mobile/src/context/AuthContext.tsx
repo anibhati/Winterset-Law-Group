@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter, useSegments } from "expo-router";
 import { apiFetch, setStoredToken, clearStoredToken, getStoredToken } from "../api/client";
+import * as SecureStore from "expo-secure-store";
 
 interface User { id: string; name: string; email: string; role: string; }
 interface LoginResponse { token: string; user: User; }
@@ -12,10 +13,8 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-// Stores user object alongside token so name/email survive app restarts
 const USER_KEY = "wlg_user";
-import * as SecureStore from "expo-secure-store";
+const AUTH_GROUP = "(auth)";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -27,12 +26,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     restoreSession();
   }, []);
 
-  // Handle navigation based on auth state
   useEffect(() => {
     if (loading) return;
-    const inAuthGroup = segments[0] === "login";
+    const inAuthGroup = segments[0] === AUTH_GROUP;
     if (!user && !inAuthGroup) {
-      router.replace("/login");
+      router.replace("/(auth)/login");
     } else if (user && inAuthGroup) {
       router.replace("/dashboard");
     }
@@ -48,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(JSON.parse(userJson));
       }
     } catch {
-      // Ignore restore errors — treat as logged out
+      // treat as logged out
     } finally {
       setLoading(false);
     }

@@ -4,6 +4,7 @@ import {
   ActivityIndicator, KeyboardAvoidingView, Platform,
   StyleSheet, SafeAreaView, ScrollView,
 } from "react-native";
+import { useRouter } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 import { ApiError } from "../api/client";
 
@@ -12,6 +13,7 @@ const BRONZE = "#B1784D";
 
 export default function LoginScreen() {
   const { login } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +76,20 @@ export default function LoginScreen() {
               : <Text style={styles.buttonText}>Sign In</Text>}
           </TouchableOpacity>
 
+          <TouchableOpacity onPress={() => router.push("/(auth)/forgot-password")} style={styles.linkBtn}>
+            <Text style={styles.linkText}>Forgot password?</Text>
+          </TouchableOpacity>
+
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerLabel}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <TouchableOpacity onPress={() => router.push("/(auth)/signup")} style={styles.signupBtn}>
+            <Text style={styles.signupBtnText}>Create Account</Text>
+          </TouchableOpacity>
+
           <Text style={styles.security}>🔒 Secured with 256-bit TLS encryption</Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -94,7 +110,14 @@ const styles = StyleSheet.create({
   inputLabel: { color: "rgba(255,255,255,0.4)", fontSize: 11, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.6 },
   input: { fontSize: 16, color: "#fff" },
   error: { color: "#fca5a5", fontSize: 13, marginBottom: 12, textAlign: "center" },
-  button: { backgroundColor: BRONZE, borderRadius: 14, paddingVertical: 17, alignItems: "center", marginBottom: 24 },
+  button: { backgroundColor: BRONZE, borderRadius: 14, paddingVertical: 17, alignItems: "center", marginBottom: 12 },
   buttonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  linkBtn: { alignItems: "center", marginBottom: 24 },
+  linkText: { color: "rgba(255,255,255,0.45)", fontSize: 13, textDecorationLine: "underline" },
+  dividerRow: { flexDirection: "row", alignItems: "center", marginBottom: 16, gap: 10 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: "rgba(255,255,255,0.12)" },
+  dividerLabel: { color: "rgba(255,255,255,0.3)", fontSize: 12 },
+  signupBtn: { borderRadius: 14, paddingVertical: 17, alignItems: "center", marginBottom: 24, borderWidth: 1.5, borderColor: "rgba(255,255,255,0.2)" },
+  signupBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
   security: { color: "rgba(255,255,255,0.3)", fontSize: 11, textAlign: "center" },
 });
