@@ -15,6 +15,9 @@ function PayIcon({ active }: { active: boolean }) {
 function DisputeIcon({ active }: { active: boolean }) {
   return <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={active ? NAVY : "#9ca3af"} strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round"><Circle cx="12" cy="12" r="10" /><Line x1="12" y1="8" x2="12" y2="12" /><Line x1="12" y1="16" x2="12.01" y2="16" /></Svg>;
 }
+function MessagesIcon({ active }: { active: boolean }) {
+  return <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={active ? NAVY : "#9ca3af"} strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round"><Path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></Svg>;
+}
 function AccountIcon({ active }: { active: boolean }) {
   return <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={active ? NAVY : "#9ca3af"} strokeWidth={active ? 2.5 : 2} strokeLinecap="round" strokeLinejoin="round"><Path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><Circle cx="12" cy="7" r="4" /></Svg>;
 }
@@ -30,12 +33,10 @@ function RootNavigator() {
     );
   }
 
-  // Not logged in — just render whatever route is active (will be /login via index.tsx redirect)
   if (!user) {
     return <Slot />;
   }
 
-  // Logged in — render the tab navigator
   return (
     <Tabs
       screenOptions={{
@@ -58,10 +59,12 @@ function RootNavigator() {
       <Tabs.Screen name="dashboard" options={{ tabBarLabel: "Home", tabBarIcon: ({ focused }) => <HomeIcon active={focused} /> }} />
       <Tabs.Screen name="payment" options={{ tabBarLabel: "Pay", tabBarIcon: ({ focused }) => <PayIcon active={focused} /> }} />
       <Tabs.Screen name="dispute" options={{ tabBarLabel: "Dispute", tabBarIcon: ({ focused }) => <DisputeIcon active={focused} /> }} />
+      <Tabs.Screen name="messages" options={{ tabBarLabel: "Messages", tabBarIcon: ({ focused }) => <MessagesIcon active={focused} /> }} />
       <Tabs.Screen name="account" options={{ tabBarLabel: "Account", tabBarIcon: ({ focused }) => <AccountIcon active={focused} /> }} />
       <Tabs.Screen name="index" options={{ href: null, headerShown: false }} />
       <Tabs.Screen name="login" options={{ href: null, headerShown: false }} />
       <Tabs.Screen name="link-account" options={{ href: null, headerTitle: "Link Account" }} />
+      <Tabs.Screen name="consultation" options={{ href: null, headerTitle: "Schedule a Call" }} />
     </Tabs>
   );
 }
